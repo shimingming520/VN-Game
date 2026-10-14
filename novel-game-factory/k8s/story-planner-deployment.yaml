@@ -1,0 +1,170 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: story-planner
+  namespace: novel-game
+spec:
+  replicas: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: story-planner
+  template:
+    metadata:
+      labels:
+        app: story-planner
+    spec:
+      terminationGracePeriodSeconds: 172800
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: story-planner
+          image: harbor.farmmx.com/game/story_planner:v20260827
+          imagePullPolicy: Always
+          command: ["celery"]
+          args:
+            - "-A"
+            - "tasks"
+            - "worker"
+            - "--loglevel=info"
+            - "-Q"
+            - "story_queue"
+            - "--pool=prefork"
+            - "--concurrency=1"
+            - "--prefetch-multiplier=1"
+            - "--max-tasks-per-child=5"
+            - "--without-gossip"
+            - "--without-mingle"
+          envFrom:
+            - configMapRef:
+                name: novel-game-config-test
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: DB_PASSWORD
+            - name: STORY_PLANNER_LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: STORY_PLANNER_LLM_API_KEY
+            - name: STORY_PLANNER_LLM_BASE_URL
+              value: "http://172.16.30.31:32691/v1"
+            - name: STORY_PLANNER_LLM_MODEL
+              value: "gpt-5.6-sol"
+            - name: STORY_PLANNER_LLM_API_FORMAT
+              value: "openai"
+            - name: STORY_PLANNER_LLM_TIMEOUT
+              value: "1800"
+            - name: STORY_PLANNER_LLM_CONTEXT_WINDOW_TOKENS
+              value: "128000"
+            - name: STORY_PLANNER_LLM_MAX_INPUT_TOKENS
+              value: "80000"
+            - name: STORY_PLANNER_LLM_PROMPT_SAFETY_TOKENS
+              value: "8000"
+            - name: STORY_PLANNER_LLM_MAX_ATTEMPTS
+              value: "5"
+            - name: STORY_PLANNER_LLM_BACKOFF_BASE_SECONDS
+              value: "2"
+            - name: STORY_PLANNER_LLM_BACKOFF_MAX_SECONDS
+              value: "60"
+            - name: STORY_PLANNER_LLM_BACKOFF_JITTER_RATIO
+              value: "0.2"
+            - name: STORY_PLANNER_LLM_REQUESTS_PER_MINUTE
+              # 0 = 关闭单 Worker 本地漏桶；实际并发由 10×concurrency=1 控制。
+              value: "0"
+            # 供应商侧总额度与任务级 token/API-call 预算负责兜底；不在集群内再设
+            # Redis 全局并发/RPM 闸门，避免 10 个单槽 Worker 被二次压缩为 4 路。
+            - name: STORY_PLANNER_LLM_GLOBAL_LIMIT_ENABLED
+              value: "0"
+            - name: STORY_PLANNER_LLM_GLOBAL_REQUESTS_PER_MINUTE
+              value: "60"
+            - name: STORY_PLANNER_LLM_GLOBAL_MAX_CONCURRENCY
+              value: "4"
+            - name: STORY_PLANNER_LLM_BACKPRESSURE_MAX_WAIT_SECONDS
+              value: "900"
+            - name: STORY_PLANNER_LLM_BACKPRESSURE_POLL_SECONDS
+              value: "0.5"
+            - name: STORY_PLANNER_LLM_CONCURRENCY_LEASE_SECONDS
+              value: "1800"
+            - name: STORY_PLANNER_TASK_SOFT_TIME_LIMIT
+              value: "136800"
+            - name: STORY_PLANNER_TASK_TIME_LIMIT
+              value: "172800"
+            - name: STORY_PLANNER_AUXILIARY_TASK_SOFT_TIME_LIMIT
+              value: "900"
+            - name: STORY_PLANNER_AUXILIARY_TASK_TIME_LIMIT
+              value: "1200"
+            - name: STORY_PLANNER_TRANSLATION_MODEL_CONVERT_TIMEOUT
+              value: "1800"
+            - name: STORY_PLANNER_CONFIRMATION_TIMEOUT
+              value: "21600"
+            - name: STORY_PLANNER_MAX_NOVEL_CHARS
+              value: "1500000"
+            - name: STORY_PLANNER_MAX_CHAPTERS
+              value: "3000"
+            - name: STORY_PLANNER_ESTIMATED_LLM_SECONDS_PER_CALL
+              value: "30"
+            - name: STORY_PLANNER_ANALYSIS_SEGMENT_CHARS
+              value: "13000"
+            - name: STORY_PLANNER_SUMMARY_MERGE_BATCH_SIZE
+              value: "8"
+            - name: STORY_PLANNER_WORLDVIEW_SEGMENT_CHARS
+              value: "40000"
+            - name: STORY_PLANNER_WORLDVIEW_MERGE_BATCH_SIZE
+              value: "5"
+            - name: STORY_PLANNER_CACHE_DIR
+              value: "/storage/story_planner/cache/chapter_branch"
+            - name: STORY_PLANNER_CACHE_VERSION
+              value: "chapter-branch-v1"
+            - name: STORY_PLANNER_CACHE_MAX_AGE_DAYS
+              value: "30"
+            - name: STORY_PLANNER_RELEASE_MIN_GENERATED_CHARS
+              value: "300"
+            - name: STORY_PLANNER_RELEASE_MIN_ENDINGS
+              value: "1"
+            - name: STORY_PLANNER_RELEASE_MIN_SCORE
+              value: "30"
+            - name: STORY_PLANNER_SOFT_BRANCH_TRANSITION_DROP_LIMIT
+              value: "0.65"
+            - name: STORY_PLANNER_NODE_SELF_HEAL_MAX_ATTEMPTS
+              value: "3"
+            - name: STORY_PLANNER_RELEASE_REPAIR_MAX_ROUNDS
+              value: "2"
+            - name: STORY_PLANNER_WHATIF_TRANSITION_REPAIR_ATTEMPTS
+              value: "1"
+            - name: STORY_PLANNER_TRANSITION_MIN_SCORE
+              value: "5"
+            - name: STORY_PLANNER_HEARTBEAT_INTERVAL_SECONDS
+              value: "60"
+            - name: STORY_PLANNER_NODE_STALL_TIMEOUT_SECONDS
+              value: "1800"
+            - name: STORY_PLANNER_DIAGNOSTIC_DIR
+              value: "/storage/story_planner/diagnostics"
+            - name: LLM_PROVIDER
+              value: "openai"
+            - name: HF_DATASETS_OFFLINE
+              value: "1"
+            - name: WORKER_DB_POOL_SIZE
+              value: "1"
+            - name: WORKER_DB_MAX_OVERFLOW
+              value: "0"
+          volumeMounts:
+            - name: storage
+              mountPath: /storage
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1536Mi"
+            limits:
+              cpu: "2000m"
+              memory: "3Gi"
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: novel-game-storage

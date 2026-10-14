@@ -1,0 +1,50 @@
+{
+  "service": "info_extractor",
+  "version": "1.0.0",
+  "description": "从故事树和剧情提取角色、剧情、场景、封面、氛围等信息并写入数据库",
+  "stage_order": 2,
+  "celery": {
+    "task": "services.info_extractor.tasks.extract_info",
+    "queue": "extract_queue",
+    "input": "task_id"
+  },
+  "reads_from_db": [
+    "task_id",
+    "story_tree_json",
+    "story_tree_md"
+  ],
+  "reads_from_fs": [
+    "outputs/{task_id}/story_tree.json"
+  ],
+  "writes_to_db": [
+    "characters",
+    "name_mappings",
+    "plots",
+    "character_prompts",
+    "scenes",
+    "backgrounds",
+    "sound",
+    "atmosphere",
+    "ultimate",
+    "story_tree_json",
+    "info_extractor_status",
+    "progress_percentage",
+    "error_message"
+  ],
+  "writes_to_fs": [
+    "outputs/{task_id}/story_tree.json",
+    "outputs/{task_id}/name_mappings.json",
+    "outputs/{task_id}/atmophere.json",
+    "outputs/{task_id}/{task_id}.json"
+  ],
+  "depends_on": [
+    "story_planner"
+  ],
+  "required_by": [
+    "char_designer",
+    "audio_producer",
+    "scene_painter",
+    "sound_arranger",
+    "game_builder"
+  ]
+}

@@ -1,0 +1,50 @@
+# 平台前端(静态站点,nginx托管 + 反代/api到platform-api)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: platform-frontend
+  namespace: agent-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: platform-frontend
+  template:
+    metadata:
+      labels:
+        app: platform-frontend
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: frontend
+          image: harbor.farmmx.com/agent-platform/platform-frontend:latest
+          imagePullPolicy: Always
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: "500m", memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: platform-frontend
+  namespace: agent-platform
+spec:
+  selector:
+    app: platform-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  # 若集群有 ingress-controller,建议改用 Ingress 暴露而不是 NodePort;
+  # 没有的话临时改成 type: NodePort 或用 kubectl port-forward 联调

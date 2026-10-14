@@ -1,0 +1,34 @@
+{
+  "service": "audio_producer",
+  "version": "1.0.0",
+  "description": "根据剧情节点生成角色配音音频",
+  "stage_order": 3,
+  "celery": {
+    "task": "services.audio_producer.tasks.generate_audio",
+    "queue": "audio_queue",
+    "input": "task_id",
+    "regenerate_task": "services.audio_producer.tasks.regenerate_audio"
+  },
+  "reads_from_db": [
+    "task_id",
+    "output_language"
+  ],
+  "reads_from_fs": [
+    "outputs/{task_id}/story_tree.json"
+  ],
+  "writes_to_db": [
+    "audio_producer_status",
+    "progress_percentage",
+    "error_message"
+  ],
+  "writes_to_fs": [
+    "outputs/{task_id}/{node_id}/audios/{language}-audio/",
+    "outputs/{task_id}/{node_id}/audios/{language}-subtitle/"
+  ],
+  "depends_on": [
+    "story_planner"
+  ],
+  "required_by": [
+    "game_builder"
+  ]
+}

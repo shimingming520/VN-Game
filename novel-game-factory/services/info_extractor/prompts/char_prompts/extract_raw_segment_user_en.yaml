@@ -1,0 +1,54 @@
+metadata:
+  service: char_designer
+  name: extract_raw_segment_user_en
+  version: v1.0
+  language: en-US
+  prompt_type: user_prompt
+  used_in: deduplicate_characters_with_llm
+  description: "角色去重用户提示词 - 定义去重专家角色、判断规则及 JSON 输出格式"
+  tags:
+    - character-deduplication
+    - user-prompt
+    - english
+
+content: |
+  # Task: Character Extraction from Text Segment {chunk_hint}
+
+  Extract complete feature information for all **speaking characters** from the following text segment. Only extract characters who have spoken at least one line of dialogue. Do NOT extract characters who only perform actions without speaking, or characters who are merely mentioned in dialogue.
+
+  ## Task-Specific Instructions:
+  1. **Read Full Text**: Must read through the entire content, including all scene descriptions, dialogues, narrations, character psychological descriptions, etc.
+  2. **Extract from Entire Text**: Character names and features must be extracted from the entire text, not just JSON sections.
+  3. **Complete Reading**: Carefully read all paragraphs to ensure no character descriptions are missed.
+  4. **Use Analysis Phase Rules**: Apply the merge, inherit, and distinguish logic defined in the system prompt.
+  5. **Track Evidence Lines**: Every input line starts with `absolute_line_number│`. For each character, each personality/body/clothing variant, and each status combination, return the smallest reliable `start_line` and `end_line` range that contains the dialogue or textual evidence supporting that record.
+  6. **Write Context Info**: Add an `info` field describing who the character is in this segment and, for variants/combinations, the concrete narrative situation in which that state appears. Keep it factual and grounded in the numbered text.
+
+  ## Input Data:
+  Text Title: {node_title}
+  Text Content:
+  {text_content}
+
+  ## Output Requirements:
+  Extract complete feature information for all speaking characters (including name, other_names, info, personality variants, whole body state variants, clothing variants, status combinations, and evidence line ranges). Return a JSON object where each key is a character name and each value is that character's complete data structure.
+
+  `start_line` / `end_line` requirements:
+  - Copy the absolute line numbers shown before `│`; do not invent relative line numbers.
+  - Character-level lines should cover the character's spoken dialogue plus the descriptions used for this extraction.
+  - Variant/combination-level lines should be as specific as possible to that state.
+  - Do not output final `refs` strings; the application converts validated line ranges into `node_id_startLine_endLine` refs.
+
+  **REMINDER**: Apply all Universal Extraction Rules from the system prompt, especially:
+  - **Speaking Criteria (Critical)**: Only extract characters who have spoken at least one line of dialogue. Characters who only have actions but no dialogue must NOT be extracted. Characters who are only mentioned in dialogue (e.g., "I heard Old Wang is sick") must NOT be extracted.
+  - **Name Priority (Critical)**: Use this priority for `name`: complete real name > personal name + relationship designation > surname + title/occupation > event/background + generic reference. Strongly avoid generic relationship/title alone or appearance/clothing-based labels as `name` when a more specific option exists.
+  - **Priority focus**: Primary-name correctness matters more than exhaustive `other_names`. Missing some aliases is acceptable; using a generic primary name like "哥哥" or "老师" when a more specific form exists is not.
+  - **Name Priority Examples**:
+    * "江辰" + "江雨的哥哥" + "哥哥" → use `name: "江辰"`
+    * "江雨的哥哥" + "哥哥" and no real name → use `name: "江雨的哥哥"`
+    * "江辰" + "江老师" + "老师" → use `name: "江辰"`
+    * "江老师" + "老师" and no real name → use `name: "江老师"`
+  - **Unnamed minor character naming**: For brief unnamed passerby characters, prefer event/action/background-based names such as "守墓的那个女人", "送外卖的那个男人", "孩子去世的那个女人". Avoid appearance/clothing-based names such as "穿黑裙子的女人", "红衣女人", "长发女人".
+  - Perform Pronoun Coreference Resolution first
+  - Preserve original language for all names
+  - Extract ALL name variants into other_names (do not leave empty unless truly only one name is used)
+  - Follow all field description specification rules

@@ -1,0 +1,27 @@
+metadata:
+  service: info_extractor
+  name: update_story_tree_book_summary_en
+  version: v1.0
+  language: en-US
+  description: "生成书籍简介提示词（英文）- 占位符: {combined_content}"
+  tags:
+    - update-story-tree
+    - book-summary
+    - en
+
+content: |
+  Based on the following novel content, write an engaging web novel style summary:
+  
+  Content excerpt:
+  {combined_content}
+  
+  Requirements:
+  - Highlight the core conflicts and highlights
+  - Create suspense to pique reader interest
+  - Strictly keep it within 80 words maximum
+  - Use common web novel summary writing styles
+  - Mention main characters, core setting, and main conflicts
+  - Do not reveal too much, leave room for mystery
+  - Language should be vivid and appealing
+  - Must not exceed 80 words
+  

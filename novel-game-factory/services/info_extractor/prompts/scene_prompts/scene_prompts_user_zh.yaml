@@ -1,0 +1,24 @@
+metadata:
+  service: scene_painter
+  name: scene_prompts_user
+  version: v1.0
+  language: zh-CN
+  description: "场景图像提示词生成用户提示词模板 - 含 {location_name}/{location_detail}/{time}/{weather}/{position}/{shot}/{variant_increment}/{light}/{atmosphere} 占位符"
+  tags:
+    - scene-image-prompt
+    - user-prompt
+
+content: |
+  【大空间地点】: {location_name}
+  【大空间固定通用结构（一级 detail，仅作背景参考）】: {location_detail}
+
+  【本变体所在位置】: {position}
+  【本变体时间】: {time}
+  【本变体天气】: {weather}
+  【★本变体画面（shot：这张底图主要画什么、画面重心、视角、大空间在画面里占多少——这是决定构图与画面重点的主导信息）】: {shot}
+  【本变体特有增量（increment：独立物品/天气造成的空间状态，相对一级通用结构的差异）】: {variant_increment}
+  【光线】: {light}
+  【气氛】: {atmosphere}
+
+  请把以上信息融合成一条英文文生图提示词，生成这个场景该时间/天气/位置下的空镜底图（无人物）。
+  **以「本变体画面 shot」为构图主导**：它决定画面重心、取景范围、大空间在画面里占多少（是全景主体还是背景/一角）；一级通用结构只作背景参考，不必全部塞进画面；增量信息作为画面里额外的独立物品/天气状态补充进去。只输出提示词字符串本身。

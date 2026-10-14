@@ -1,0 +1,12 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlmodel>=0.0.16
+psycopg2-binary>=2.9
+pydantic>=2.6
+requests>=2.31
+# 创作代理的 /story/upload、/novels 收 multipart 表单。缺这个包时 FastAPI 在注册
+# 带 File()/Form() 的路由时就抛 RuntimeError,即 import main 即失败、容器起不来
+python-multipart>=0.0.9
+PyJWT>=2.8
+cryptography>=42
+oss2>=2.18

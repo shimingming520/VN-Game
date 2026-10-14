@@ -1,0 +1,50 @@
+# Char Designer 基础镜像 - 包含图像处理相关大包
+# 包含 rembg、opencv、scipy、scikit-image 等
+# 构建命令: cd .. && docker build -t harbor.farmmx.com/game/base:char -f docker/Dockerfile.base.char .
+# 推送命令: docker push harbor.farmmx.com/game/base:char
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# 配置 apt 和 pip 镜像源
+RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80retries && \
+    sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/debian.sources && \
+    sed -i 's/security.debian.org/mirrors.ustc.edu.cn\/debian-security/g' /etc/apt/sources.list.d/debian.sources && \
+    pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ && \
+    pip config set global.trusted-host mirrors.aliyun.com
+
+# 安装系统依赖（rembg 需要的 X11 库）
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends --fix-missing \
+        gcc g++ libpq-dev \
+        libxcb1 libxcb-xinerama0 libxcb-randr0 libxcb-xtest0 \
+        libxcb-xfixes0 libxcb-shape0 libxcb-render0 libxcb-shm0 \
+        libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-util1 \
+        libxrender1 libxext6 libsm6 libice6 libgl1 libglib2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
+
+# 安装公共依赖
+RUN pip install --no-cache-dir \
+    celery==5.3.4 \
+    redis==5.0.1 \
+    psycopg2-binary==2.9.9 \
+    sqlalchemy==2.0.23 \
+    python-dotenv==1.0.0
+
+# 安装图像处理大包（rembg 的依赖）
+RUN pip install --no-cache-dir --timeout=3600 --retries=10 \
+    numpy \
+    scipy \
+    scikit-image \
+    opencv-python-headless \
+    pillow \
+    onnxruntime \
+    rembg
+
+# 清理缓存
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    find /usr/local -type f -name '*.pyc' -delete && \
+    find /usr/local -type d -name '__pycache__' -delete
+
+ENV PYTHONPATH=/app

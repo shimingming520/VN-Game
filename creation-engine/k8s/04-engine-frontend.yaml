@@ -1,0 +1,48 @@
+# 创作引擎前端(静态站点,nginx托管 + 反代/api到engine-api)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: engine-frontend
+  namespace: agent-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: engine-frontend
+  template:
+    metadata:
+      labels:
+        app: engine-frontend
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: frontend
+          image: harbor.farmmx.com/agent-platform/creation-engine-frontend:latest
+          imagePullPolicy: Always
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: "500m", memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: engine-frontend
+  namespace: agent-platform
+spec:
+  selector:
+    app: engine-frontend
+  ports:
+    - port: 80
+      targetPort: 80

@@ -1,0 +1,12 @@
+# RabbitMQ 数据 PVC(只在首次建集群时 apply 一次;已绑定后 spec 不可变,日常勿重复 apply)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rabbitmq-data
+  namespace: agent-platform
+spec:
+  storageClassName: storage-nfs
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 10Gi

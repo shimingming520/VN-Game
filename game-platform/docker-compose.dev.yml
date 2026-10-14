@@ -1,0 +1,26 @@
+version: "3.8"
+# 本地联调环境:RabbitMQ + 平台独立 PG
+# 用法: docker compose -f docker-compose.dev.yml up -d
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # 管理台 http://localhost:15672 (guest/guest)
+
+  platform-pg:
+    image: postgres:16
+    environment:
+      TZ: Asia/Shanghai
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: platform
+      POSTGRES_DB: agent_platform
+    ports:
+      - "15432:5432"    # 避开本地可能已有的 5432
+    volumes:
+      - platform_pg_data:/var/lib/postgresql/data
+
+volumes:
+  platform_pg_data:

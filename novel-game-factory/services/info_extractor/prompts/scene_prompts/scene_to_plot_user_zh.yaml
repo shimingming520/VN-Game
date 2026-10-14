@@ -1,0 +1,21 @@
+metadata:
+  service: scene_painter
+  name: scene_to_plot_user
+  version: v1.0
+  language: zh-CN
+  description: "剧情表场景对齐用户提示词模板 - 含 {node_id} / {candidates} / {beats} 占位符"
+  tags:
+    - scene-align
+    - user-prompt
+
+content: |
+  【当前原文节点 node_id】: {node_id}
+
+  【候选场景表（本节点涉及的场景点与变体；"原文行区间"与下方 beat 行号同坐标系）】:
+  {candidates}
+
+  【beat 流水（按顺序，共 {beat_count} 个；#序号 用于分段区间，L 为原文行号）】:
+  {beats}
+
+  请严格按系统提示词要求，输出覆盖全部 beat（#0 ~ #{last_index}）、不重不漏的有序分段 JSON。
+  每一段判定其 scene_id（命中已有变体），或 scene_id 置 null 并给出 new_variant（兜底新建）。

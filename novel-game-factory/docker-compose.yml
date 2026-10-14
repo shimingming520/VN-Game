@@ -1,0 +1,235 @@
+services:
+  redis:
+    image: redis:7-alpine
+    platform: linux/amd64
+    ports:
+      - "6379:6379"
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      - novel-game-network
+
+  api_gateway:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: services/api_gateway/Dockerfile
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - STORAGE_PATH=/storage
+      - DOMAIN=${DOMAIN:-localhost}
+    volumes:
+      - ./storage:/storage
+    depends_on:
+      - redis
+    networks:
+      - novel-game-network
+
+  story_planner:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: services/story_planner/Dockerfile
+    environment:
+      - TZ=Asia/Shanghai
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+      - STORAGE_PATH=/storage
+      - NOVEL_NAME=${NOVEL_NAME}
+      - LLM_PROVIDER=${LLM_PROVIDER}
+      - STORY_DEPTH=${STORY_DEPTH}
+      - STORY_WIDTH=${STORY_WIDTH}
+      - TRANSLATOR_MODEL_DIR=/storage/models
+      - TRANSFORMERS_OFFLINE=1
+      - HF_DATASETS_OFFLINE=1
+    volumes:
+      - ./storage:/storage
+    depends_on:
+      - redis
+    networks:
+      - novel-game-network
+
+  info_extractor:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: services/info_extractor/Dockerfile
+    environment:
+      - TZ=Asia/Shanghai
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+      - STORAGE_PATH=/storage
+      - LLM_PROVIDER=${LLM_PROVIDER}
+      - LLM_API_FORMAT=${LLM_API_FORMAT:-openai}
+      - LLM_MODEL=${LLM_MODEL:-gpt-5.6-sol}
+      - GPT_IMAGE_BASE_URL=${GPT_IMAGE_BASE_URL:-https://ai.farmmx.com}
+      - GPT_IMAGE_API_KEY=${GPT_IMAGE_API_KEY}
+    volumes:
+      - ./storage:/storage
+    depends_on:
+      - redis
+    networks:
+      - novel-game-network
+
+  sound_arranger:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: services/sound_arranger/Dockerfile
+    environment:
+      - TZ=Asia/Shanghai
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - STABILITY_API_KEY=${STABILITY_API_KEY}
+      - GPT_IMAGE_API_KEY=${GPT_IMAGE_API_KEY}
+      - GPT_IMAGE_BASE_URL=${GPT_IMAGE_BASE_URL:-https://ai.farmmx.com}
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+      - AUDIO_CACHE_NAMESPACE=${AUDIO_CACHE_NAMESPACE:-company-gateway/stable-audio-3/revision-1}
+      - STABLE_AUDIO_STEPS=${STABLE_AUDIO_STEPS:-8}
+      - STORAGE_PATH=/storage
+    volumes:
+      - ./storage:/storage
+    depends_on:
+      - redis
+    networks:
+      - novel-game-network
+
+  char_designer:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: services/char_designer/Dockerfile
+    environment:
+      - TZ=Asia/Shanghai
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+      - STORAGE_PATH=/storage
+      - LLM_PROVIDER=${LLM_PROVIDER}
+    volumes:
+      - ./storage:/storage
+    depends_on:
+      - redis
+    networks:
+      - novel-game-network
+
+  audio_producer:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: services/audio_producer/Dockerfile
+    environment:
+      - TZ=Asia/Shanghai
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+      - MINIMAX_API_KEY=${MINIMAX_API_KEY}
+      - STORAGE_PATH=/storage
+      - LLM_PROVIDER=${LLM_PROVIDER}
+    volumes:
+      - ./storage:/storage
+    depends_on:
+      - redis
+    networks:
+      - novel-game-network
+
+  scene_painter:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: services/scene_painter/Dockerfile
+    environment:
+      - TZ=Asia/Shanghai
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+      - STORAGE_PATH=/storage
+      - LLM_PROVIDER=${LLM_PROVIDER}
+    volumes:
+      - ./storage:/storage
+    depends_on:
+      - redis
+    networks:
+      - novel-game-network
+
+  game_builder:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: services/game_builder/Dockerfile
+    environment:
+      - TZ=Asia/Shanghai
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - STORAGE_PATH=/storage
+      - DOMAIN=${DOMAIN:-localhost}
+    volumes:
+      - ./storage:/storage
+    depends_on:
+      - redis
+    networks:
+      - novel-game-network
+
+  game_server:
+    image: nginx:alpine
+    platform: linux/amd64
+    ports:
+      - "8080:80"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./storage/built_games:/usr/share/nginx/html:ro
+      - ./storage/built_games/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - novel-game-network
+
+networks:
+  novel-game-network:
+    driver: bridge

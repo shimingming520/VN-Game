@@ -1,0 +1,36 @@
+{
+  "service": "sound_arranger",
+  "version": "1.0.0",
+  "description": "读取 info_extractor 写入的 sound 表，生成背景音乐和音效音频",
+  "stage_order": 4,
+  "celery": {
+    "task": "services.sound_arranger.tasks.generate_sound",
+    "queue": "sound_queue",
+    "input": "task_id",
+    "regenerate_task": "services.sound_arranger.tasks.regenerate_sound"
+  },
+  "reads_from_db": [
+    "task_id",
+    "sound"
+  ],
+  "reads_from_fs": [
+    "outputs/{task_id}/story_tree.json"
+  ],
+  "writes_to_db": [
+    "sound_arranger_status",
+    "progress_percentage",
+    "error_message"
+  ],
+  "writes_to_fs": [
+    "outputs/{task_id}/{node_id}/audios/bgm/",
+    "outputs/{task_id}/{node_id}/audios/sfx/",
+    "outputs/{task_id}/{node_id}/audios/ambience/"
+  ],
+  "depends_on": [
+    "story_planner",
+    "info_extractor"
+  ],
+  "required_by": [
+    "game_builder"
+  ]
+}

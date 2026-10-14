@@ -1,0 +1,170 @@
+pipeline {
+    agent any
+
+    environment {
+        HARBOR_HOST = 'harbor.farmmx.com'
+        HARBOR_PROJECT = 'game-test'
+        REGISTRY = "${HARBOR_HOST}/${HARBOR_PROJECT}"
+        K8S_NAMESPACE = 'novel-game'
+        HARBOR_CREDS = credentials('harbor-credentials')
+        TAG = "${env.BUILD_NUMBER}"
+        DOCKER_BUILDKIT = '1'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "🔄 拉取代码..."
+                checkout scm
+            }
+        }
+
+        stage('Environment Info') {
+            steps {
+                echo "📋 构建信息："
+                echo "  环境: 测试环境 (test)"
+                echo "  镜像仓库: ${REGISTRY}"
+                echo "  K8s Namespace: ${K8S_NAMESPACE}"
+                echo "  镜像标签: ${TAG}"
+            }
+        }
+
+        stage('Login Harbor') {
+            steps {
+                sh 'echo $HARBOR_CREDS_PSW | docker login ${HARBOR_HOST} -u $HARBOR_CREDS_USR --password-stdin'
+            }
+        }
+
+        stage('Build Services') {
+            parallel {
+                stage('API Gateway') {
+                    steps {
+                        sh '''
+                            docker build --platform linux/amd64 \\
+                            -t ${REGISTRY}/api_gateway:${TAG} \\
+                            -t ${REGISTRY}/api_gateway:latest \\
+                            -f services/api_gateway/Dockerfile .
+                            docker push ${REGISTRY}/api_gateway:${TAG}
+                            docker push ${REGISTRY}/api_gateway:latest
+                        '''
+                    }
+                }
+                stage('Story Planner') {
+                    steps {
+                        sh '''
+                            docker build --platform linux/amd64 \\
+                            -t ${REGISTRY}/story_planner:${TAG} \\
+                            -t ${REGISTRY}/story_planner:latest \\
+                            -f services/story_planner/Dockerfile .
+                            docker push ${REGISTRY}/story_planner:${TAG}
+                            docker push ${REGISTRY}/story_planner:latest
+                        '''
+                    }
+                }
+                stage('Info Extractor') {
+                    steps {
+                        sh '''
+                            docker build --platform linux/amd64 \\
+                            -t ${REGISTRY}/info_extractor:${TAG} \\
+                            -t ${REGISTRY}/info_extractor:latest \\
+                            -f services/info_extractor/Dockerfile .
+                            docker push ${REGISTRY}/info_extractor:${TAG}
+                            docker push ${REGISTRY}/info_extractor:latest
+                        '''
+                    }
+                }
+                stage('Audio Producer') {
+                    steps {
+                        sh '''
+                            docker build --platform linux/amd64 \\
+                            -t ${REGISTRY}/audio_producer:${TAG} \\
+                            -t ${REGISTRY}/audio_producer:latest \\
+                            -f services/audio_producer/Dockerfile .
+                            docker push ${REGISTRY}/audio_producer:${TAG}
+                            docker push ${REGISTRY}/audio_producer:latest
+                        '''
+                    }
+                }
+                stage('Scene Painter') {
+                    steps {
+                        sh '''
+                            docker build --platform linux/amd64 \\
+                            -t ${REGISTRY}/scene_painter:${TAG} \\
+                            -t ${REGISTRY}/scene_painter:latest \\
+                            -f services/scene_painter/Dockerfile .
+                            docker push ${REGISTRY}/scene_painter:${TAG}
+                            docker push ${REGISTRY}/scene_painter:latest
+                        '''
+                    }
+                }
+                stage('Char Designer') {
+                    steps {
+                        sh '''
+                            docker build --platform linux/amd64 \\
+                            -t ${REGISTRY}/char_designer:${TAG} \\
+                            -t ${REGISTRY}/char_designer:latest \\
+                            -f services/char_designer/Dockerfile .
+                            docker push ${REGISTRY}/char_designer:${TAG}
+                            docker push ${REGISTRY}/char_designer:latest
+                        '''
+                    }
+                }
+                stage('Game Builder') {
+                    steps {
+                        sh '''
+                            docker build --platform linux/amd64 \\
+                            -t ${REGISTRY}/game_builder:${TAG} \\
+                            -t ${REGISTRY}/game_builder:latest \\
+                            -f services/game_builder/Dockerfile .
+                            docker push ${REGISTRY}/game_builder:${TAG}
+                            docker push ${REGISTRY}/game_builder:latest
+                        '''
+                    }
+                }
+                stage('Sound Arranger') {
+                    steps {
+                        sh '''
+                            docker build --platform linux/amd64 \\
+                            -t ${REGISTRY}/sound_arranger:${TAG} \\
+                            -t ${REGISTRY}/sound_arranger:latest \\
+                            -f services/sound_arranger/Dockerfile .
+                            docker push ${REGISTRY}/sound_arranger:${TAG}
+                            docker push ${REGISTRY}/sound_arranger:latest
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Update K8s') {
+            steps {
+                echo "🚀 更新 K8s 部署到 ${K8S_NAMESPACE} namespace..."
+                sh '''
+                    kubectl set image deployment/api-gateway api-gateway=${REGISTRY}/api_gateway:${TAG} -n ${K8S_NAMESPACE}
+                    kubectl set image deployment/story-planner story-planner=${REGISTRY}/story_planner:${TAG} -n ${K8S_NAMESPACE}
+                    kubectl set image deployment/info-extractor info-extractor=${REGISTRY}/info_extractor:${TAG} -n ${K8S_NAMESPACE}
+                    kubectl set image deployment/audio-producer audio-producer=${REGISTRY}/audio_producer:${TAG} -n ${K8S_NAMESPACE}
+                    kubectl set image deployment/scene-painter scene-painter=${REGISTRY}/scene_painter:${TAG} -n ${K8S_NAMESPACE}
+                    kubectl set image deployment/char-designer char-designer=${REGISTRY}/char_designer:${TAG} -n ${K8S_NAMESPACE}
+                    kubectl set image deployment/game-builder game-builder=${REGISTRY}/game_builder:${TAG} -n ${K8S_NAMESPACE}
+                    kubectl set image deployment/sound-arranger sound-arranger=${REGISTRY}/sound_arranger:${TAG} -n ${K8S_NAMESPACE}
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker logout ${HARBOR_HOST}'
+        }
+        success {
+            echo "✅ 构建和部署成功！"
+            echo "   环境: 测试环境 (test)"
+            echo "   镜像: ${REGISTRY}/*:${TAG}"
+            echo "   Namespace: ${K8S_NAMESPACE}"
+        }
+        failure {
+            echo "❌ 构建失败，请检查日志"
+        }
+    }
+}

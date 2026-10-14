@@ -1,0 +1,38 @@
+{
+  "service": "story_planner",
+  "version": "1.0.0",
+  "description": "解析小说文本，生成故事树结构和剧情草稿",
+  "stage_order": 1,
+  "celery": {
+    "task": "services.story_planner.tasks.parse_novel_to_draft",
+    "queue": "story_queue",
+    "input": "task_id"
+  },
+  "reads_from_db": [
+    "task_id",
+    "novel_filename",
+    "project_name",
+    "output_language",
+    "art_style",
+    "story_mode"
+  ],
+  "reads_from_fs": [
+    "raw_novels/{task_id}.txt"
+  ],
+  "writes_to_db": [
+    "story_tree_json",
+    "story_tree_md",
+    "plots",
+    "story_planner_status",
+    "progress_percentage",
+    "error_message"
+  ],
+  "writes_to_fs": [],
+  "depends_on": [],
+  "required_by": [
+    "char_designer",
+    "audio_producer",
+    "sound_arranger",
+    "scene_painter"
+  ]
+}

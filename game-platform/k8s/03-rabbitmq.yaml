@@ -1,0 +1,106 @@
+# RabbitMQ 消息总线(自建,部署在中台 ns)
+# 生产要点:PVC 在 03-rabbitmq-pvc.yaml(只首次 apply);账号走 Secret;管理台 15672 不对外暴露
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-config
+  namespace: agent-platform
+data:
+  rabbitmq.conf: |
+    # Adapter 会持有 delivery 直到十几个小时的 Celery 任务完成。默认 consumer
+    # ack timeout 太短会断开 channel 并造成外层 Job 重投；这里设为 14 天。
+    consumer_timeout = 1209600000
+    vm_memory_high_watermark.relative = 0.70
+    disk_free_limit.absolute = 1GB
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: agent-platform
+spec:
+  replicas: 1
+  # PVC 是 ReadWriteOnce,滚动更新时新 pod 要挂载而旧 pod 还占着 → FailedMount(exit 32),
+  # 新旧 pod 反复接力、连接被踢。Recreate 先停旧的再起新的,单副本的 MQ 本来也没滚动更新的意义。
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+      annotations:
+        # rabbitmq.conf 通过 subPath 挂载，ConfigMap 更新不会在现有 Pod 内热更新。
+        # 修改此版本可让 apply 同时触发 Recreate，确保 consumer_timeout 真正生效。
+        concurrency-config-version: "2026-08-18-1"
+    spec:
+      # Erlang 节点名默认取 pod 主机名,而 Deployment 每次重建 pod 都换随机后缀,
+      # mnesia 目录随之换路径、节点按 virgin 启动 —— 队列绑定和消息全丢。
+      # 后果排查过一次:中台把消息发到 topic exchange 时 adapter 还没重新 bind,
+      # 无匹配绑定的消息被直接丢弃,任务永远停在「已下发」0%。
+      hostname: platform-mq
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3.13-management
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            # 固定节点名,数据目录才稳定,重启后能恢复既有队列
+            - name: RABBITMQ_NODENAME
+              value: rabbit@platform-mq
+            - name: RABBITMQ_DEFAULT_USER
+              value: platform
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: platform-secrets
+                  key: RABBITMQ_PASSWORD
+                  optional: true
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/rabbitmq
+            - name: config
+              mountPath: /etc/rabbitmq/rabbitmq.conf
+              subPath: rabbitmq.conf
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
+          readinessProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "check_port_connectivity"]
+            initialDelaySeconds: 15
+            periodSeconds: 15
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: rabbitmq-data
+        - name: config
+          configMap:
+            name: rabbitmq-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: agent-platform
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+    - name: amqp
+      port: 5672
+      targetPort: 5672
+    - name: mgmt
+      port: 15672
+      targetPort: 15672
+# 其他组跨 ns 连: amqp://...@rabbitmq.agent-platform.svc.cluster.local:5672
+# 将来有集群外算法组时,另加 NodePort/LoadBalancer 暴露 5672

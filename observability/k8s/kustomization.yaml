@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - 01-loki.yaml
+  - 02-vector.yaml
+  - 04-dashboard.yaml
+  - 03-grafana.yaml

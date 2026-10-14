@@ -1,0 +1,4196 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Novel Game Factory API Gateway",
+    "description": "批量处理小说，生成视觉小说游戏的入口服务",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Root",
+        "description": "根路径",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/models/options": {
+      "get": {
+        "summary": "Get Model Options",
+        "description": "返回可选模型清单，供前端渲染文本/生图/音频模型下拉框。\ndefault 为各类型默认值，options 为全部可选值。",
+        "operationId": "get_model_options_api_v1_models_options_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/models/image-options": {
+      "get": {
+        "summary": "Get Image Model Options",
+        "description": "返回重新生图可选择的全部图像模型。",
+        "operationId": "get_image_model_options_api_v1_models_image_options_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageModelOptionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/novels/batch": {
+      "post": {
+        "summary": "Batch Process Novels",
+        "description": "批量处理小说（最多50本）\n\nArgs:\n    novels: 小说文件列表（.txt格式）\n    output_language: 输出语言代码\n    art_style: 画面风格\n    story_mode: 剧情模式，original=原文适应（默认），multi=多剧情改写\n    gameplay: 游戏玩法，interactive_story=互动故事（默认），free_growth=自由成长\n\nReturns:\n    任务ID列表和状态",
+        "operationId": "batch_process_novels_api_v1_novels_batch_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_batch_process_novels_api_v1_novels_batch_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchProcessResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}/status": {
+      "get": {
+        "summary": "Get Task Status",
+        "description": "查询任务状态\n\nArgs:\n    task_id: 任务ID\n\nReturns:\n    任务详细状态",
+        "operationId": "get_task_status_api_v1_tasks__task_id__status_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}/generation-params": {
+      "get": {
+        "summary": "Get Generation Params",
+        "description": "查询某任务的生成参数：3 个模型（文本/生图/音频）+ 分辨率 + 视觉风格。\n\nArgs:\n    task_id: 任务 ID\n\nReturns:\n    GenerationParamsResponse: 该任务选定的模型/分辨率/画面风格",
+        "operationId": "get_generation_params_api_v1_tasks__task_id__generation_params_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerationParamsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/status-counts": {
+      "get": {
+        "summary": "Get Task Status Counts",
+        "description": "查询新建、已发布、未发布和当前用户参与作品的数量。\n\nuser_name 由前端传入，采用精确匹配。参与作品包括该用户创建的作品，以及在\nmaterial_regen_sessions 中记录为该用户编辑过的作品。",
+        "operationId": "get_task_status_counts_api_v1_tasks_status_counts_get",
+        "parameters": [
+          {
+            "name": "user_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskStatusCountsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks": {
+      "get": {
+        "summary": "List Tasks",
+        "description": "查询任务列表，支持多条件模糊查询（作品ID、作品名称、创建者姓名）。\n\nArgs:\n    status: 过滤状态（0-待处理, 1-处理中, 2-已完成, 3-失败）\n    task_id: 按任务ID模糊查询\n    novel_filename: 按作品名称模糊查询\n    user_name: 按创建者姓名模糊查询\n    keyword: 综合搜索词，命中 task_id / novel_filename / user_name 任一字段（OR 模糊匹配）\n    limit: 返回数量限制\n    offset: 偏移量",
+        "operationId": "list_tasks_api_v1_tasks_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "novel_filename",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Novel Filename"
+            }
+          },
+          {
+            "name": "user_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User Name"
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Keyword"
+            }
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Time"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/new": {
+      "get": {
+        "summary": "List New Tasks",
+        "description": "查询新建作品：所有未完成且未被软删除的作品。",
+        "operationId": "list_new_tasks_api_v1_tasks_new_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "novel_filename",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Novel Filename"
+            }
+          },
+          {
+            "name": "user_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User Name"
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Keyword"
+            }
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Time"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/published": {
+      "get": {
+        "summary": "List Published Tasks",
+        "description": "查询已发布作品：存在 status=published 发布记录的未删除作品。",
+        "operationId": "list_published_tasks_api_v1_tasks_published_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "novel_filename",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Novel Filename"
+            }
+          },
+          {
+            "name": "user_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User Name"
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Keyword"
+            }
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Time"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/unpublished": {
+      "get": {
+        "summary": "List Unpublished Tasks",
+        "description": "查询未发布作品：已完成但没有成功发布记录的未删除作品。",
+        "operationId": "list_unpublished_tasks_api_v1_tasks_unpublished_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "novel_filename",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Novel Filename"
+            }
+          },
+          {
+            "name": "user_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User Name"
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Keyword"
+            }
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Time"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/participated": {
+      "get": {
+        "summary": "List Participated Tasks",
+        "description": "查询当前用户创建或编辑过的未删除作品。",
+        "operationId": "list_participated_tasks_api_v1_tasks_participated_get",
+        "parameters": [
+          {
+            "name": "user_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Name"
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "novel_filename",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Novel Filename"
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Keyword"
+            }
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Time"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}": {
+      "delete": {
+        "summary": "Delete Task",
+        "description": "软删除任务（仅将 novel_tasks 主表记录标记为已删除，不级联清理关联表数据与素材文件）\n\nArgs:\n    task_id: 任务ID\n\nReturns:\n    删除结果",
+        "operationId": "delete_task_api_v1_tasks__task_id__delete",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}/restore": {
+      "post": {
+        "summary": "Restore Task",
+        "description": "恢复被软删除的任务（将 is_deleted 置回 false）\n\nArgs:\n    task_id: 任务ID\n\nReturns:\n    恢复结果",
+        "operationId": "restore_task_api_v1_tasks__task_id__restore_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/deleted": {
+      "get": {
+        "summary": "List Deleted Tasks",
+        "description": "查询已软删除的任务列表，支持多条件模糊查询（作品ID、作品名称、创建者姓名）。\n\nArgs:\n    task_id: 按任务ID模糊查询\n    novel_filename: 按作品名称模糊查询\n    user_name: 按创建者姓名模糊查询\n    keyword: 综合搜索词，命中 task_id / novel_filename / user_name 任一字段（OR 模糊匹配）\n    limit: 返回数量限制\n    offset: 偏移量",
+        "operationId": "list_deleted_tasks_api_v1_tasks_deleted_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "novel_filename",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Novel Filename"
+            }
+          },
+          {
+            "name": "user_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User Name"
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Keyword"
+            }
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Time"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/char_designer/regenerate": {
+      "post": {
+        "summary": "Regenerate Char Designer",
+        "description": "角色素材重生成接口（单张图片）",
+        "operationId": "regenerate_char_designer_api_v1_materials_char_designer_regenerate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharDesignerRegenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterialRegenerateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/scene_painter/regenerate": {
+      "post": {
+        "summary": "Regenerate Scene Painter",
+        "description": "场景素材重生成接口（单个素材）",
+        "operationId": "regenerate_scene_painter_api_v1_materials_scene_painter_regenerate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenePainterRegenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterialRegenerateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/audio_producer/regenerate": {
+      "post": {
+        "summary": "Regenerate Audio Producer",
+        "description": "音频素材重生成接口",
+        "operationId": "regenerate_audio_producer_api_v1_materials_audio_producer_regenerate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioProducerRegenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterialRegenerateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/audio_producer/voice/regenerate": {
+      "post": {
+        "summary": "Regenerate Character Voice",
+        "description": "角色级换音色：更新 voice_mappings 中该角色的 voice_id，并联动重生成该角色在该语言下的全部台词音频。\n异步执行，返回 regenerate_id 供轮询状态。",
+        "operationId": "regenerate_character_voice_api_v1_materials_audio_producer_voice_regenerate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterVoiceRegenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterialRegenerateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/audio_producer/voice/recommend": {
+      "get": {
+        "summary": "Recommend Character Voices",
+        "description": "为指定角色推荐可试听的音色列表（按角色性别+年龄段筛选，排除当前在用音色）。\n\nArgs:\n    task_id:    任务 ID\n    speaker_id: 角色 speaker_id（与字幕前缀、换音色接口一致）\n    language:   语言（默认 zh-CN，当前仅中文有试听音频）\n\nReturns:\n    {task_id, speaker_id, gender, age_category, current_voice_id, total, voices: [...], errors}",
+        "operationId": "recommend_character_voices_api_v1_materials_audio_producer_voice_recommend_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "speaker_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Speaker Id"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "zh-CN",
+              "title": "Language"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/sound_arranger/regenerate": {
+      "post": {
+        "summary": "Regenerate Sound Arranger",
+        "description": "音效素材重生成接口",
+        "operationId": "regenerate_sound_arranger_api_v1_materials_sound_arranger_regenerate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SoundArrangerRegenerateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterialRegenerateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/regenerate/{regenerate_id}/status": {
+      "get": {
+        "summary": "Get Regenerate Status",
+        "description": "查询素材重生成任务状态。\n\nArgs:\n    regenerate_id: 重生成任务 ID（由 POST 接口返回）\n\nReturns:\n    重生成详细结果",
+        "operationId": "get_regenerate_status_api_v1_materials_regenerate__regenerate_id__status_get",
+        "parameters": [
+          {
+            "name": "regenerate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Regenerate Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterialRegenerateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}/build": {
+      "post": {
+        "summary": "Build Online",
+        "description": "第一步：选择 UI 预设，生成在线包。\n修改 story_tree.json 的 art_style，然后跑 converter.py。",
+        "operationId": "build_online_api_v1_tasks__task_id__build_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuildOnlineRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}/export": {
+      "post": {
+        "summary": "Export Offline",
+        "description": "第二步：导出单机包（写死 offline）。\n直接读取当前 story_tree.json 的 art_style，跑 converter_steam.py。",
+        "operationId": "export_offline_api_v1_tasks__task_id__export_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{task_id}/build/{build_id}/status": {
+      "get": {
+        "summary": "Get Build Status",
+        "description": "查询构建/导出任务状态（build 和 export 共用）。",
+        "operationId": "get_build_status_api_v1_tasks__task_id__build__build_id__status_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "build_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Build Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/{task_id}/regen/history": {
+      "get": {
+        "summary": "Get Regen History",
+        "description": "查询素材重生成历史记录。\n\nArgs:\n    task_id: 任务 ID\n    node_id: 可选，过滤指定章节（OSS 格式）\n    material_id: 可选，过滤指定素材文件名\n    language: 可选，过滤指定语言（audio_producer：zh-CN/en-US/ja-JP）\n\nReturns:\n    历史记录列表，按 session_no ASC 排序",
+        "operationId": "get_regen_history_api_v1_materials__task_id__regen_history_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          },
+          {
+            "name": "node_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Node Id"
+            }
+          },
+          {
+            "name": "material_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Material Id"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Language"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/{task_id}/regen/activate": {
+      "post": {
+        "summary": "Activate Regen Version",
+        "description": "激活指定 material_version 的版本：将文件写到本地并更新 DB is_active。\n同步恢复服务特定元数据（字幕/prompt）。",
+        "operationId": "activate_regen_version_api_v1_materials__task_id__regen_activate_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateVersionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/materials/{task_id}/regen/rollback": {
+      "post": {
+        "summary": "Rollback Regen Version",
+        "description": "回滚到上一个版本：自动找 current_material_version - 1 对应的记录并激活。\n同步恢复服务特定元数据（字幕/prompt）。\n\n例：当前版本 1.2（material_version=2），点击回滚 → 激活 1.1（material_version=1）。\n    当前版本 1.1（material_version=1），点击回滚 → 激活原始版本（session_no=0）。",
+        "operationId": "rollback_regen_version_api_v1_materials__task_id__regen_rollback_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RollbackVersionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "健康检查",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/upload": {
+      "post": {
+        "summary": "Upload Single Novel",
+        "description": "步骤1：上传剧本文件。\n保存文件和 DB 记录（含 3 模型 + 分辨率 + 视觉风格），立即触发摘要生成（Celery），\n不触发完整任务链。前端上传成功后跳转输出约束页，同时轮询 GET /summary 等待摘要就绪。\n这 5 个参数上传时即记录，后续 POST /story/{task_id}/config 仍可覆盖。",
+        "operationId": "upload_single_novel_api_v1_story_upload_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_single_novel_api_v1_story_upload_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoryUploadResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/upload-url": {
+      "post": {
+        "summary": "Upload Novel By Url",
+        "description": "步骤1（链接模式）：同步爬取 URL 全文，成功后落库并触发摘要生成。\n爬空 / 超时 / 异常一律 400，不创建 DB 记录。爬完后流程与 /upload 一致。",
+        "operationId": "upload_novel_by_url_api_v1_story_upload_url_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadUrlRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoryUploadResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/{task_id}/config": {
+      "post": {
+        "summary": "Save Story Config",
+        "description": "步骤2：保存输出约束配置（输出语言、画面风格、剧情模式、游戏玩法）。\n返回 story_mode，前端据此决定下一步跳转改编约束页还是信息确认页。",
+        "operationId": "save_story_config_api_v1_story__task_id__config_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoryConfigRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/{task_id}/adaptation": {
+      "get": {
+        "summary": "Get Adaptation Constraints",
+        "description": "查询改编约束配置（仅 MULTI 模式）。用于信息确认页回显。",
+        "operationId": "get_adaptation_constraints_api_v1_story__task_id__adaptation_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Save Adaptation Constraints",
+        "description": "步骤3（仅 MULTI 模式）：保存改编约束，触发主流程（当前为假实现）。\n参数：target_audience, narrative_perspective, genre, time_space, plot（最多2个）",
+        "operationId": "save_adaptation_constraints_api_v1_story__task_id__adaptation_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdaptationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/similar-config": {
+      "get": {
+        "summary": "Get Similar Config",
+        "description": "创建相似品发布：从已存在的源任务提取可复用配置，供新任务预填表单。\n\n返回源任务的输出约束（语言/风格/剧情模式/玩法/三类模型/分辨率）和\n改编约束（仅 MULTI 模式）。前端拿到后预填 config/adaptation 页，\n用户可逐项修改后走正常 upload→config→(adaptation)→confirm 流程。\n\n不复用：小说内容、作品名、运行时状态、创建者（user_id/user_name 由新请求提供）。\n\nArgs:\n    source_task_id: 作为模板的源任务 ID\n\nReturns:\n    SimilarConfigResponse: 可复用配置画像",
+        "operationId": "get_similar_config_api_v1_story_similar_config_get",
+        "parameters": [
+          {
+            "name": "source_task_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Source Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimilarConfigResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/{task_id}/confirm": {
+      "post": {
+        "summary": "Confirm And Start",
+        "description": "步骤4：信息确认，触发完整任务链。\n- 保存用户修改的作品名\n- MULTI 模式：将 Worldview/Outline 状态改为 CONFIRMED（Celery 轮询自动继续）\n- 启动完整 Celery 链",
+        "operationId": "confirm_and_start_api_v1_story__task_id__confirm_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/{task_id}/summary": {
+      "get": {
+        "summary": "Get Story Summary",
+        "description": "轮询摘要状态。上传后立即可调用，status=pending 时前端展示加载动效。\n- pending: 摘要生成中\n- ready: 摘要已就绪，可展示",
+        "operationId": "get_story_summary_api_v1_story__task_id__summary_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/{task_id}/summary/regenerate": {
+      "post": {
+        "summary": "Regenerate Story Summary",
+        "description": "重新异步提炼故事梗概、故事背景和一句话故事。",
+        "operationId": "regenerate_story_summary_api_v1_story__task_id__summary_regenerate_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/{task_id}/outline": {
+      "get": {
+        "summary": "Get Story Outline",
+        "description": "MULTI 模式专用：查询世界观和大纲状态。\n- pending: 世界观/大纲尚未生成\n- ready: 已生成（DRAFT），等待用户确认\n- confirmed: 已确认，任务链执行中",
+        "operationId": "get_story_outline_api_v1_story__task_id__outline_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutlineStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/{task_id}/generate-name": {
+      "post": {
+        "summary": "Generate Project Name",
+        "description": "用 LLM 从摘要内容生成作品名，供信息确认页「刷新」图标使用。",
+        "operationId": "generate_project_name_api_v1_story__task_id__generate_name_post",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/{task_id}/script-preview": {
+      "get": {
+        "summary": "Get Script Preview",
+        "description": "返回旁白型剧本内容，beats 未生成时返回 404。\n格式：每行 [说话人]: 内容，换行分隔。",
+        "operationId": "get_script_preview_api_v1_story__task_id__script_preview_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/{task_id}/plots-status": {
+      "get": {
+        "summary": "Get Plots Status",
+        "description": "轮询剧情 beats 状态。\n- pending: beats 尚未生成\n- ready: beats 已就绪，可调用 /script-preview",
+        "operationId": "get_plots_status_api_v1_story__task_id__plots_status_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/story/{task_id}/tree": {
+      "get": {
+        "summary": "Get Story Tree",
+        "description": "查询故事树节点列表。\n\n从 story_tree_json 表读取故事树，提取每个节点的展示字段：\nnode_id / title / depth / parent_ids / is_branch / is_original / summary / children。\n节点按 depth 升序排列（同层保持原顺序），便于前端从根往下渲染树。\n\nArgs:\n    task_id: 任务 ID\n\nReturns:\n    {task_id, nodes}，故事树未生成时返回 404",
+        "operationId": "get_story_tree_api_v1_story__task_id__tree_get",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/game/cast": {
+      "patch": {
+        "summary": "Update Cast",
+        "operationId": "update_cast_api_v1_game_cast_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCastRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActivateVersionRequest": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "target_material_version": {
+            "type": "integer",
+            "title": "Target Material Version"
+          },
+          "node_id": {
+            "type": "string",
+            "title": "Node Id"
+          },
+          "material_id": {
+            "type": "string",
+            "title": "Material Id"
+          },
+          "subdir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subdir"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "target_material_version",
+          "node_id",
+          "material_id"
+        ],
+        "title": "ActivateVersionRequest",
+        "description": "激活指定版本请求"
+      },
+      "AdaptationRequest": {
+        "properties": {
+          "target_audience": {
+            "type": "string",
+            "title": "Target Audience"
+          },
+          "narrative_perspective": {
+            "type": "string",
+            "title": "Narrative Perspective"
+          },
+          "genre": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Genre"
+          },
+          "time_space": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Space"
+          },
+          "plot": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plot"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_audience",
+          "narrative_perspective"
+        ],
+        "title": "AdaptationRequest"
+      },
+      "AudioProducerRegenerateRequest": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id",
+            "description": "任务 ID"
+          },
+          "node_id": {
+            "type": "string",
+            "title": "Node Id",
+            "description": "OSS 格式章节 ID"
+          },
+          "material_id": {
+            "type": "string",
+            "title": "Material Id",
+            "description": "格式 {scene_id}-{beat_id}，不含后缀，如 scene_forest_day_dappled_sunlight_01-14"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "操作人 ID"
+          },
+          "user_name": {
+            "type": "string",
+            "title": "User Name",
+            "description": "操作人名称"
+          },
+          "new_content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Content",
+            "description": "新台词内容（同时更新 plots 表和字幕文件；仅 zh-CN 会回写 plots 源文本）"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "语言 zh-CN/en-US/ja-JP，默认 zh-CN",
+            "default": "zh-CN"
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "description": "强制重生成，默认 true",
+            "default": true
+          },
+          "session_no": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session No",
+            "description": "操作序号，null=自动分配"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "node_id",
+          "material_id",
+          "user_id",
+          "user_name"
+        ],
+        "title": "AudioProducerRegenerateRequest",
+        "description": "音频素材重生成请求（单条音频）。不改音色，始终用该角色在 voice_mappings[language] 中当前的音色；换音色请用角色级换音色接口。"
+      },
+      "BatchProcessResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/TaskInfo"
+            },
+            "type": "array",
+            "title": "Tasks"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "total",
+          "tasks",
+          "message"
+        ],
+        "title": "BatchProcessResponse",
+        "description": "批量处理响应"
+      },
+      "Body_batch_process_novels_api_v1_novels_batch_post": {
+        "properties": {
+          "novels": {
+            "items": {
+              "type": "string",
+              "contentMediaType": "application/octet-stream"
+            },
+            "type": "array",
+            "title": "Novels",
+            "description": "小说文件列表（最多50本）"
+          },
+          "output_language": {
+            "type": "string",
+            "title": "Output Language",
+            "description": "输出语言（zh-CN, en-US, ja-JP等）",
+            "default": "zh-CN"
+          },
+          "art_style": {
+            "type": "string",
+            "title": "Art Style",
+            "description": "画面风格：ink_chinese/cyberpunk/japanese/dark_european/modern_realism",
+            "default": "ink_chinese"
+          },
+          "story_mode": {
+            "type": "string",
+            "title": "Story Mode",
+            "description": "剧情模式：original=原文适应（默认），multi=多剧情改写",
+            "default": "original"
+          },
+          "gameplay": {
+            "type": "string",
+            "title": "Gameplay",
+            "description": "游戏玩法：interactive_story=互动故事（默认），free_growth=自由成长",
+            "default": "interactive_story"
+          },
+          "text_model": {
+            "type": "string",
+            "title": "Text Model",
+            "description": "文本模型，见 GET /api/v1/models/options",
+            "default": "qwen3.7-max"
+          },
+          "image_model": {
+            "type": "string",
+            "title": "Image Model",
+            "description": "生图模型，见 GET /api/v1/models/options",
+            "default": "gpt-image-2"
+          },
+          "audio_model": {
+            "type": "string",
+            "title": "Audio Model",
+            "description": "音频模型，见 GET /api/v1/models/options",
+            "default": "speech-2.8-hd"
+          },
+          "resolution": {
+            "type": "string",
+            "title": "Resolution",
+            "description": "输出分辨率：1080p / 2k / 4k",
+            "default": "1080p"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "用户ID"
+          },
+          "user_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Name",
+            "description": "用户名"
+          }
+        },
+        "type": "object",
+        "required": [
+          "novels"
+        ],
+        "title": "Body_batch_process_novels_api_v1_novels_batch_post"
+      },
+      "Body_upload_single_novel_api_v1_story_upload_post": {
+        "properties": {
+          "novel": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Novel",
+            "description": "小说文件（.txt，最大50MB）"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "user_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Name"
+          },
+          "art_style": {
+            "type": "string",
+            "title": "Art Style",
+            "description": "视觉风格：ink_chinese/cyberpunk/japanese/dark_european/modern_realism",
+            "default": "ink_chinese"
+          },
+          "text_model": {
+            "type": "string",
+            "title": "Text Model",
+            "description": "文本模型，见 GET /api/v1/models/options",
+            "default": "qwen3.7-max"
+          },
+          "image_model": {
+            "type": "string",
+            "title": "Image Model",
+            "description": "生图模型，见 GET /api/v1/models/options",
+            "default": "gpt-image-2"
+          },
+          "audio_model": {
+            "type": "string",
+            "title": "Audio Model",
+            "description": "音频模型，见 GET /api/v1/models/options",
+            "default": "speech-2.8-hd"
+          },
+          "resolution": {
+            "type": "string",
+            "title": "Resolution",
+            "description": "输出分辨率：1080p / 2k / 4k",
+            "default": "1080p"
+          }
+        },
+        "type": "object",
+        "required": [
+          "novel"
+        ],
+        "title": "Body_upload_single_novel_api_v1_story_upload_post"
+      },
+      "BuildOnlineRequest": {
+        "properties": {
+          "ui_preset": {
+            "type": "integer",
+            "title": "Ui Preset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ui_preset"
+        ],
+        "title": "BuildOnlineRequest"
+      },
+      "BuildResponse": {
+        "properties": {
+          "build_id": {
+            "type": "string",
+            "title": "Build Id"
+          },
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "output_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Dir"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "build_id",
+          "task_id",
+          "status",
+          "started_at"
+        ],
+        "title": "BuildResponse"
+      },
+      "CharDesignerRegenerateRequest": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id",
+            "description": "任务 ID"
+          },
+          "node_id": {
+            "type": "string",
+            "title": "Node Id",
+            "description": "OSS 格式章节 ID"
+          },
+          "material_id": {
+            "type": "string",
+            "title": "Material Id",
+            "description": "格式 {speaker_id}_{p-b-c}_{emotion}[_{景别}]，不含后缀。景别可选 CS/MS/LS（默认 LS）。新旧两种格式后端都能解析：旧 Liang_1-1-1_calm、ShiXing_1-1-1_angry；新 Liang_1-1-1_calm_LS"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "操作人 ID"
+          },
+          "user_name": {
+            "type": "string",
+            "title": "User Name",
+            "description": "操作人名称"
+          },
+          "new_prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Prompt",
+            "description": "新 positive_prompt（只更新该 combination 的提示词）"
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Name",
+            "description": "图片模型：gpt-image-2 / qwen-image-plus / wan2.5-t2i-preview；不传=系统默认（gpt）。Wan/Qwen 的图生图统一走 Qwen-Image-Edit"
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "description": "强制重生成，默认 true",
+            "default": true
+          },
+          "session_no": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session No",
+            "description": "操作序号，null=自动分配"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "node_id",
+          "material_id",
+          "user_id",
+          "user_name"
+        ],
+        "title": "CharDesignerRegenerateRequest",
+        "description": "角色素材重生成请求（单张图片）。emotion=calm 走文生图并联动重生成同 combination 的所有 emotion；emotion!=calm 以同 combination 的 calm 图为基图走图生图。"
+      },
+      "CharacterVoiceRegenerateRequest": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id",
+            "description": "任务 ID"
+          },
+          "speaker_id": {
+            "type": "string",
+            "title": "Speaker Id",
+            "description": "角色 speaker_id（与字幕前缀一致）"
+          },
+          "voice_id": {
+            "type": "string",
+            "title": "Voice Id",
+            "description": "新音色 ID"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "操作人 ID"
+          },
+          "user_name": {
+            "type": "string",
+            "title": "User Name",
+            "description": "操作人名称"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "语言，默认 zh-CN（只改中文，不影响日英）",
+            "default": "zh-CN"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "speaker_id",
+          "voice_id",
+          "user_id",
+          "user_name"
+        ],
+        "title": "CharacterVoiceRegenerateRequest",
+        "description": "角色级换音色请求：更新 voice_mappings 并联动重生成该角色在该语言下全部台词音频（只收 {speaker}_{数字组合}_{emotion} 格式的台词行，过滤旁白与纯 speaker 名）。"
+      },
+      "ConfirmRequest": {
+        "properties": {
+          "project_name": {
+            "type": "string",
+            "title": "Project Name"
+          },
+          "outline": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outline"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_name"
+        ],
+        "title": "ConfirmRequest"
+      },
+      "GenerationParamsResponse": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "text_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Model"
+          },
+          "image_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Model"
+          },
+          "audio_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audio Model"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution"
+          },
+          "art_style": {
+            "type": "string",
+            "title": "Art Style"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "art_style"
+        ],
+        "title": "GenerationParamsResponse",
+        "description": "任务的生成参数：3 个模型 + 分辨率 + 视觉风格。\n\n展示某 task_id 生成时选定的模型/分辨率/画面风格。"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ImageModelOptionsResponse": {
+        "properties": {
+          "default": {
+            "type": "string",
+            "title": "Default"
+          },
+          "options": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Options"
+          }
+        },
+        "type": "object",
+        "required": [
+          "default",
+          "options"
+        ],
+        "title": "ImageModelOptionsResponse",
+        "description": "重新生图可选模型响应。"
+      },
+      "MaterialRegenerateResponse": {
+        "properties": {
+          "regenerate_id": {
+            "type": "string",
+            "title": "Regenerate Id"
+          },
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "service_type": {
+            "type": "string",
+            "title": "Service Type"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "default": 0
+          },
+          "success": {
+            "type": "integer",
+            "title": "Success",
+            "default": 0
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed",
+            "default": 0
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RegenerateItem"
+            },
+            "type": "array",
+            "title": "Items",
+            "default": []
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Errors",
+            "default": []
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "emotion_pending": {
+            "type": "boolean",
+            "default": false,
+            "title": "Emotion Pending",
+            "description": "角色 calm 图重生成场景：calm 已完成并返回 success，但联动的情绪变体仍在后台生成。为 true 时 items 只含 calm；如需变体结果可继续轮询直到该字段为 false。"
+          }
+        },
+        "type": "object",
+        "required": [
+          "regenerate_id",
+          "task_id",
+          "service_type",
+          "status",
+          "started_at"
+        ],
+        "title": "MaterialRegenerateResponse",
+        "description": "素材重生成响应"
+      },
+      "OutlineStatusResponse": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "worldview": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Worldview"
+          },
+          "outline": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outline"
+          },
+          "key_nodes": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Nodes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "status"
+        ],
+        "title": "OutlineStatusResponse"
+      },
+      "RegenerateItem": {
+        "properties": {
+          "material_id": {
+            "type": "string",
+            "title": "Material Id"
+          },
+          "material_subtype": {
+            "type": "string",
+            "title": "Material Subtype"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "session_no": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session No"
+          },
+          "node_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Node Id"
+          },
+          "voice_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice Id"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "material_id",
+          "material_subtype",
+          "status"
+        ],
+        "title": "RegenerateItem",
+        "description": "单个重生成项"
+      },
+      "RollbackVersionRequest": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "node_id": {
+            "type": "string",
+            "title": "Node Id"
+          },
+          "material_id": {
+            "type": "string",
+            "title": "Material Id"
+          },
+          "current_material_version": {
+            "type": "integer",
+            "title": "Current Material Version"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "node_id",
+          "material_id",
+          "current_material_version"
+        ],
+        "title": "RollbackVersionRequest",
+        "description": "回滚到上一个版本请求"
+      },
+      "ScenePainterRegenerateRequest": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id",
+            "description": "任务 ID"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "操作人 ID"
+          },
+          "user_name": {
+            "type": "string",
+            "title": "User Name",
+            "description": "操作人名称"
+          },
+          "material_type": {
+            "type": "string",
+            "title": "Material Type",
+            "description": "scene 或 background（暂不支持 all）",
+            "default": "scene"
+          },
+          "scene_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scene Ids",
+            "description": "material_type=scene 时必填，只能包含 1 个"
+          },
+          "background_node_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Background Node Ids",
+            "description": "material_type=background 时必填，只能包含 1 个；支持 OSS 格式 node_id 或 \"novel_cover\""
+          },
+          "new_prompts": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Prompts",
+            "description": "{material_id: new_prompt}"
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Name",
+            "description": "图片模型：gpt-image-2 / wan2.5-t2i-preview / qwen-image-plus；不传=环境默认。系统按模型名自动路由"
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "description": "强制重生成，默认 true",
+            "default": true
+          },
+          "session_no": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session No",
+            "description": "操作序号，null=自动分配"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "user_id",
+          "user_name"
+        ],
+        "title": "ScenePainterRegenerateRequest",
+        "description": "场景素材重生成请求（单个素材）。场景提示词读写自 scene_prompts 表，封面提示词在 backgrounds 表。"
+      },
+      "SimilarConfigResponse": {
+        "properties": {
+          "source_task_id": {
+            "type": "string",
+            "title": "Source Task Id"
+          },
+          "output_language": {
+            "type": "string",
+            "title": "Output Language"
+          },
+          "art_style": {
+            "type": "string",
+            "title": "Art Style"
+          },
+          "story_mode": {
+            "type": "string",
+            "title": "Story Mode"
+          },
+          "gameplay": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gameplay"
+          },
+          "text_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Model"
+          },
+          "image_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Model"
+          },
+          "audio_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audio Model"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution"
+          },
+          "adaptation": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adaptation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_task_id",
+          "output_language",
+          "art_style",
+          "story_mode"
+        ],
+        "title": "SimilarConfigResponse",
+        "description": "创建相似品：从源任务提取的可复用配置，供新任务预填表单。\n\n不含内容/实例字段（小说名、project_name）、运行时状态、创建者信息。\n改编约束（adaptation）仅 MULTI 模式非空。"
+      },
+      "SoundArrangerRegenerateRequest": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id",
+            "description": "任务 ID"
+          },
+          "node_id": {
+            "type": "string",
+            "title": "Node Id",
+            "description": "OSS 格式章节 ID"
+          },
+          "material_id": {
+            "type": "string",
+            "title": "Material Id",
+            "description": "bgm_id 或 sfx_id，不含扩展名，如 bgm_melancholic_wolf_ambience_1-27"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "操作人 ID"
+          },
+          "user_name": {
+            "type": "string",
+            "title": "User Name",
+            "description": "操作人名称"
+          },
+          "sound_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sound Type",
+            "description": "bgm / sfx / all，默认 all",
+            "default": "all"
+          },
+          "new_prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Prompt",
+            "description": "新提示词"
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "description": "强制重生成，默认 true",
+            "default": true
+          },
+          "session_no": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session No",
+            "description": "操作序号，null=自动分配"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "node_id",
+          "material_id",
+          "user_id",
+          "user_name"
+        ],
+        "title": "SoundArrangerRegenerateRequest",
+        "description": "音效素材重生成请求（单个音效）"
+      },
+      "StoryConfigRequest": {
+        "properties": {
+          "output_language": {
+            "type": "string",
+            "title": "Output Language",
+            "default": "zh-CN"
+          },
+          "art_style": {
+            "type": "string",
+            "title": "Art Style",
+            "default": "ink_chinese"
+          },
+          "story_mode": {
+            "type": "string",
+            "title": "Story Mode",
+            "default": "original"
+          },
+          "gameplay": {
+            "type": "string",
+            "title": "Gameplay",
+            "default": "interactive_story"
+          },
+          "text_model": {
+            "type": "string",
+            "title": "Text Model",
+            "default": "qwen3.7-max"
+          },
+          "image_model": {
+            "type": "string",
+            "title": "Image Model",
+            "default": "gpt-image-2"
+          },
+          "audio_model": {
+            "type": "string",
+            "title": "Audio Model",
+            "default": "speech-2.8-hd"
+          },
+          "resolution": {
+            "type": "string",
+            "title": "Resolution",
+            "default": "1080p"
+          }
+        },
+        "type": "object",
+        "title": "StoryConfigRequest"
+      },
+      "StoryUploadResponse": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "project_name": {
+            "type": "string",
+            "title": "Project Name"
+          },
+          "novel_filename": {
+            "type": "string",
+            "title": "Novel Filename"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "project_name",
+          "novel_filename"
+        ],
+        "title": "StoryUploadResponse"
+      },
+      "SummaryStatusResponse": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "outline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outline"
+          },
+          "background": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Background"
+          },
+          "one_liner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "One Liner"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "status"
+        ],
+        "title": "SummaryStatusResponse"
+      },
+      "TaskInfo": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "project_name": {
+            "type": "string",
+            "title": "Project Name"
+          },
+          "novel_filename": {
+            "type": "string",
+            "title": "Novel Filename"
+          },
+          "output_language": {
+            "type": "string",
+            "title": "Output Language"
+          },
+          "art_style": {
+            "type": "string",
+            "title": "Art Style"
+          },
+          "story_mode": {
+            "type": "string",
+            "title": "Story Mode"
+          },
+          "celery_chain_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Celery Chain Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "project_name",
+          "novel_filename",
+          "output_language",
+          "art_style",
+          "story_mode"
+        ],
+        "title": "TaskInfo",
+        "description": "任务信息"
+      },
+      "TaskListResponse": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "tasks": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Tasks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "tasks"
+        ],
+        "title": "TaskListResponse",
+        "description": "任务列表响应"
+      },
+      "TaskStatusCountsResponse": {
+        "properties": {
+          "new": {
+            "type": "integer",
+            "title": "New"
+          },
+          "published": {
+            "type": "integer",
+            "title": "Published"
+          },
+          "unpublished": {
+            "type": "integer",
+            "title": "Unpublished"
+          },
+          "participated": {
+            "type": "integer",
+            "title": "Participated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "new",
+          "published",
+          "unpublished",
+          "participated"
+        ],
+        "title": "TaskStatusCountsResponse",
+        "description": "作品状态筛选数量响应。"
+      },
+      "TaskStatusResponse": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "project_name": {
+            "type": "string",
+            "title": "Project Name"
+          },
+          "novel_filename": {
+            "type": "string",
+            "title": "Novel Filename"
+          },
+          "output_language": {
+            "type": "string",
+            "title": "Output Language"
+          },
+          "art_style": {
+            "type": "string",
+            "title": "Art Style"
+          },
+          "story_mode": {
+            "type": "string",
+            "title": "Story Mode"
+          },
+          "gameplay": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gameplay"
+          },
+          "upload_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upload Type"
+          },
+          "overall_status": {
+            "type": "string",
+            "title": "Overall Status"
+          },
+          "progress_percentage": {
+            "type": "integer",
+            "title": "Progress Percentage"
+          },
+          "stages": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Stages"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "create_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Create Time"
+          },
+          "update_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Update Time"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "info_confirm_stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Info Confirm Stage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "project_name",
+          "novel_filename",
+          "output_language",
+          "art_style",
+          "story_mode",
+          "overall_status",
+          "progress_percentage",
+          "stages",
+          "error_message",
+          "create_time",
+          "update_time",
+          "completed_at"
+        ],
+        "title": "TaskStatusResponse",
+        "description": "任务状态响应"
+      },
+      "UpdateCastRequest": {
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "title": "Task Id"
+          },
+          "node_id": {
+            "type": "string",
+            "title": "Node Id"
+          },
+          "beat_id": {
+            "type": "string",
+            "title": "Beat Id"
+          },
+          "character_position": {
+            "type": "string",
+            "title": "Character Position"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_id",
+          "node_id",
+          "beat_id",
+          "character_position"
+        ],
+        "title": "UpdateCastRequest"
+      },
+      "UploadUrlRequest": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "user_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Name"
+          },
+          "art_style": {
+            "type": "string",
+            "title": "Art Style",
+            "default": "ink_chinese"
+          },
+          "text_model": {
+            "type": "string",
+            "title": "Text Model",
+            "default": "qwen3.7-max"
+          },
+          "image_model": {
+            "type": "string",
+            "title": "Image Model",
+            "default": "gpt-image-2"
+          },
+          "audio_model": {
+            "type": "string",
+            "title": "Audio Model",
+            "default": "speech-2.8-hd"
+          },
+          "resolution": {
+            "type": "string",
+            "title": "Resolution",
+            "default": "1080p"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "UploadUrlRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

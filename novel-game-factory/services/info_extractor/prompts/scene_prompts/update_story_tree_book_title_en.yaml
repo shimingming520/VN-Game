@@ -1,0 +1,25 @@
+metadata:
+  service: info_extractor
+  name: update_story_tree_book_title_en
+  version: v1.0
+  language: en-US
+  description: "生成书名提示词（英文）- 占位符: {combined_content}"
+  tags:
+    - update-story-tree
+    - book-title
+    - en
+
+content: |
+  Based on the following novel content excerpt, generate an appealing web novel title:
+  
+  Content excerpt:
+  {combined_content}
+  
+  Requirements:
+  - The title should reflect the core characteristics and theme of the story
+  - Use popular web novel title styles
+  - Keep it within 3-8 words
+  - Avoid special characters
+  - Make it attractive and commercially viable
+  - Do not use the original title
+  

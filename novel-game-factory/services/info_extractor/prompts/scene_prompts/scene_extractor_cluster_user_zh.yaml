@@ -1,0 +1,15 @@
+metadata:
+  service: scene_painter
+  name: scene_extractor_cluster_user
+  version: v1.0
+  language: zh-CN
+  description: "场景聚类用户提示词模板 - 含 {scene_list} 占位符（带 index/name/info 的条目清单）"
+  tags:
+    - scene-merge
+    - clustering
+    - user-prompt
+
+content: |
+  以下是待归并的场景条目清单，请按物理地点分组，输出 JSON：
+
+  {scene_list}

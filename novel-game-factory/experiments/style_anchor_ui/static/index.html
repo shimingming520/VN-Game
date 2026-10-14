@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Style Anchor 验证界面</title>
+  <style>
+    :root { color-scheme:light; --ink:#17202a; --muted:#667085; --line:#d0d5dd; --brand:#315efb; --ok:#087443; --warn:#b54708; --danger:#b42318; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif; color:var(--ink); background:#f5f7fb; }
+    main { width:min(1240px,calc(100% - 32px)); margin:28px auto 64px; }
+    h1 { margin:0 0 6px; font-size:28px; }
+    h2 { margin:0 0 18px; font-size:19px; }
+    h3 { margin:0 0 12px; font-size:16px; }
+    p { color:var(--muted); line-height:1.65; }
+    .card { background:white; border:1px solid #e4e7ec; border-radius:14px; padding:22px; margin-top:18px; box-shadow:0 5px 20px rgba(16,24,40,.04); }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+    .field { display:flex; flex-direction:column; gap:7px; }
+    .field.full { grid-column:1/-1; }
+    label { font-size:13px; font-weight:650; }
+    input,select,textarea,button { font:inherit; }
+    input,select,textarea { width:100%; border:1px solid var(--line); border-radius:9px; padding:10px 12px; background:#fff; }
+    textarea { min-height:130px; resize:vertical; line-height:1.55; }
+    button { border:0; border-radius:9px; padding:10px 15px; cursor:pointer; background:var(--brand); color:white; font-weight:650; }
+    button.secondary { background:#eef2ff; color:#2746b6; }
+    button.confirm { background:var(--ok); }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+    .mode { display:flex; gap:18px; margin-bottom:16px; }
+    .mode label { display:flex; gap:7px; align-items:center; font-weight:500; }
+    .mode input { width:auto; }
+    .anchors { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-top:18px; }
+    .anchor { border:1px solid var(--line); border-radius:12px; padding:15px; }
+    .preview { width:100%; aspect-ratio:16/10; object-fit:contain; background:repeating-conic-gradient(#f2f4f7 0 25%,#fff 0 50%) 50%/18px 18px; border:1px solid #eaecf0; border-radius:9px; margin:12px 0; }
+    .preview:not([src]) { visibility:hidden; }
+    .character .preview { aspect-ratio:3/4; }
+    .status { min-height:22px; color:var(--muted); font-size:13px; }
+    .status.ok { color:var(--ok); }
+    .status.warn { color:var(--warn); }
+    .status.danger { color:var(--danger); }
+    .note { border-left:3px solid #84adff; padding-left:12px; }
+    .reuse-note { background:#f0f5ff; border:1px solid #c7d7fe; border-radius:10px; padding:12px 14px; color:#344054; margin-bottom:16px; }
+    .task-context { display:flex; flex-wrap:wrap; gap:18px; padding:12px 14px; background:#f8fafc; border:1px solid #e4e7ec; border-radius:10px; margin-top:16px; }
+    .task-context span { color:var(--muted); }
+    .task-context strong { color:var(--ink); word-break:break-all; }
+    .preflight { white-space:pre-wrap; padding:12px; border-radius:9px; background:#f8fafc; border:1px solid #e4e7ec; color:var(--muted); min-height:48px; }
+    pre { white-space:pre-wrap; word-break:break-word; max-height:340px; overflow:auto; background:#101828; color:#e6edf7; padding:14px; border-radius:9px; font-size:12px; }
+    .stage-list { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+    .stage { border-radius:999px; padding:6px 10px; background:#f2f4f7; color:#475467; font-size:12px; }
+    .stage.completed { background:#ecfdf3; color:var(--ok); }
+    .stage.processing { background:#eef4ff; color:#2746b6; }
+    .stage.failed { background:#fef3f2; color:var(--danger); }
+    .gallery-section { margin-top:22px; }
+    .progress-panel { margin:14px 0 18px; padding:14px; border:1px solid #dbe4ff; border-radius:11px; background:#f8faff; }
+    .progress-head { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:9px; font-size:13px; }
+    .progress-track { height:14px; overflow:hidden; border-radius:999px; background:#e4e7ec; }
+    .progress-bar { width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,#315efb,#6b8cff); transition:width .35s ease; }
+    .progress-breakdown { margin-top:9px; color:var(--muted); font-size:12px; line-height:1.5; }
+    .matting-options { display:flex; flex-wrap:wrap; gap:10px; }
+    .matting-options label { display:flex; align-items:center; gap:7px; padding:9px 12px; border:1px solid var(--line); border-radius:9px; font-weight:500; background:#fff; }
+    .matting-options input { width:auto; }
+    .gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; align-items:start; }
+    .asset { margin:0; border:1px solid #e4e7ec; border-radius:10px; overflow:hidden; background:#fff; }
+    .asset-preview { display:block; width:100%; padding:0; border-radius:0; background:#f2f4f7; }
+    .asset-preview img { display:block; width:100%; height:230px; object-fit:contain; background:#f2f4f7; }
+    .asset-body { padding:10px; }
+    .asset figcaption { font-size:12px; color:#475467; word-break:break-all; font-weight:650; }
+    .asset-tags { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+    .tag { padding:3px 7px; border-radius:999px; background:#eef2ff; color:#2746b6; font-size:11px; }
+    .tag.reconstructed { background:#fff7ed; color:#b54708; }
+    .asset-prompt { margin-top:8px; }
+    .asset-prompt summary { cursor:pointer; color:#344054; font-size:12px; font-weight:650; }
+    .asset-prompt pre { max-height:180px; margin:7px 0 0; background:#f8fafc; color:#344054; border:1px solid #eaecf0; font-size:11px; padding:9px; }
+    .reference-list { display:flex; flex-direction:column; gap:7px; margin-top:8px; }
+    .reference { display:flex; gap:8px; align-items:center; color:#475467; font-size:11px; text-decoration:none; }
+    .reference img { width:48px; height:48px; object-fit:contain; border:1px solid #eaecf0; border-radius:6px; background:#f2f4f7; }
+    .asset-actions { display:flex; gap:8px; margin-top:10px; }
+    .asset-actions a { flex:1; text-align:center; padding:7px 8px; border-radius:7px; background:#eef2ff; color:#2746b6; text-decoration:none; font-size:11px; font-weight:650; }
+    .modal { position:fixed; inset:0; z-index:20; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(16,24,40,.72); }
+    .modal.open { display:flex; }
+    .modal-card { width:min(1120px,100%); max-height:92vh; overflow:auto; background:#fff; border-radius:14px; padding:18px; }
+    .modal-grid { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr); gap:18px; }
+    .modal-image { width:100%; max-height:76vh; object-fit:contain; background:#f2f4f7; border-radius:10px; }
+    .modal-close { float:right; background:#f2f4f7; color:#344054; }
+    .modal-prompt { white-space:pre-wrap; word-break:break-word; padding:12px; border-radius:9px; background:#f8fafc; border:1px solid #eaecf0; font-size:12px; line-height:1.55; }
+    .empty { color:var(--muted); font-size:13px; }
+    @media (max-width:780px) { .grid,.anchors,.modal-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>自定义美术风格 Anchor 验证</h1>
+  <p class="note">这是独立本地实验界面，不修改项目正式 UI。默认任务仍可由 story_planner 的 LLM global_style 控制；快速复用模式只复用已完成的 story_planner / info_extractor 产物，并仅执行 char_designer → scene_painter。</p>
+
+  <section class="card">
+    <h2>1A. 快速复用已完成预处理任务（推荐）</h2>
+    <div class="reuse-note">每次实验都会创建新的派生 task_id，不覆盖源任务图片。不会运行 story_planner、info_extractor、audio_producer、sound_arranger 或 game_builder。</div>
+    <div class="grid">
+      <div class="field"><label>源 source_task_id</label><input id="sourceTaskId" value="c8bdd57b3e4c" placeholder="例如 c8bdd57b3e4c"></div>
+      <div class="field"><label>派生作品名（可选）</label><input id="reuseProjectName" placeholder="默认：源作品名（风格实验）"></div>
+      <div class="field"><label>生图模型</label><select id="reuseImageModel"><option>gpt-image-2</option><option>qwen-image-plus</option><option>wan2.5-t2i-preview</option></select></div>
+      <div class="field" style="justify-content:end"><div class="row"><button id="preflightReuse" class="secondary" type="button">只读预检</button><button id="createReuse" type="button" disabled>创建派生实验任务</button></div></div>
+      <div class="field full"><div id="preflightResult" class="preflight">尚未预检。</div></div>
+      <div class="field"><label>加载已有派生 task_id</label><input id="existingDerivedTaskId" placeholder="例如 style_c8bdd57b3e4c_xxxxxxxx"></div>
+      <div class="field" style="justify-content:end"><button id="loadReuse" class="secondary" type="button">加载状态、风格与图片</button></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>1B. 上传小说创建完整任务（原有入口）</h2>
+    <form id="uploadForm" class="grid">
+      <div class="field full"><label>小说 TXT</label><input name="novel" type="file" accept=".txt,text/plain" required></div>
+      <div class="field"><label>剧情模式</label><select name="story_mode"><option value="original">original</option><option value="chapter_branch">chapter_branch</option><option value="multi">multi</option></select></div>
+      <div class="field"><label>生图模型</label><select name="image_model" id="imageModel"><option>gpt-image-2</option><option>qwen-image-plus</option><option>wan2.5-t2i-preview</option></select></div>
+      <div class="field"><label>输出语言</label><select name="output_language"><option value="zh-CN">zh-CN</option><option value="en-US">en-US</option></select></div>
+      <div class="field"><label>分辨率</label><select name="resolution"><option>1080p</option><option>2k</option><option>4k</option></select></div>
+      <div class="field"><label>玩法</label><select name="gameplay"><option>interactive_story</option><option>free_growth</option></select></div>
+      <div class="field"><label>创作模式（可选）</label><select name="mode"><option value="">Gateway 默认</option><option>efficiency</option><option>balanced</option><option>quality</option></select></div>
+      <div class="field full"><button type="submit">上传并创建任务</button></div>
+    </form>
+    <div class="task-context">
+      <span>当前 task_id：<strong id="taskId">-</strong></span>
+      <span>任务来源：<strong id="taskOrigin">-</strong></span>
+      <span>source_task_id：<strong id="activeSourceTaskId">-</strong></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. 设置风格并准备 Anchor</h2>
+    <div class="mode">
+      <label><input type="radio" name="styleMode" value="llm" checked> LLM 默认 global_style</label>
+      <label><input type="radio" name="styleMode" value="custom"> 用户自定义 Anchor</label>
+    </div>
+    <div class="grid" id="styleFields">
+      <div class="field"><label>character_global_style</label><textarea id="characterStyle" placeholder="人物立绘的媒介、线条、色彩、光影、材质等。也可先填写，再创建派生任务。"></textarea></div>
+      <div class="field"><label>scene_global_style</label><textarea id="sceneStyle" placeholder="场景图的媒介、线条、色彩、光影、材质等。也可先填写，再创建派生任务。"></textarea></div>
+      <div class="field full">
+        <label>人物立绘抠图</label>
+        <div class="matting-options">
+          <label><input type="radio" name="removeCharacterBackground" value="true"> 启动抠图</label>
+          <label><input type="radio" name="removeCharacterBackground" value="false" checked> 关闭抠图（美术风格验证推荐）</label>
+        </div>
+        <div id="mattingState" class="status">关闭后不会加载本地抠图模型，保留 Provider 原始人物背景。</div>
+      </div>
+      <div class="field full"><button id="saveStyle" type="button">保存风格设置</button></div>
+    </div>
+
+    <div class="anchors" id="anchorPanel">
+      <article class="anchor character" data-kind="character">
+        <h3>人物立绘 Anchor</h3>
+        <div class="row"><button class="generate" type="button" disabled>调用项目 Provider 生成</button><input class="upload" type="file" accept="image/png,image/jpeg,image/webp" disabled></div>
+        <img class="preview" alt="character anchor preview">
+        <div class="row"><button class="confirm" type="button" disabled>确认这张 Anchor</button></div>
+        <div class="status">尚未生成或上传</div>
+      </article>
+      <article class="anchor scene" data-kind="scene">
+        <h3>场景 Anchor</h3>
+        <div class="row"><button class="generate" type="button" disabled>调用项目 Provider 生成</button><input class="upload" type="file" accept="image/png,image/jpeg,image/webp" disabled></div>
+        <img class="preview" alt="scene anchor preview">
+        <div class="row"><button class="confirm" type="button" disabled>确认这张 Anchor</button></div>
+        <div class="status">尚未生成或上传</div>
+      </article>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. 审查 Anchor 后启动</h2>
+    <div class="grid">
+      <div class="field"><label>作品名</label><input id="projectName" placeholder="默认使用任务作品名"></div>
+      <div class="field" style="justify-content:end"><button id="startPipeline" type="button" disabled>确认并启动项目 Pipeline</button></div>
+    </div>
+    <p id="readyState">请先创建任务。</p>
+  </section>
+
+  <section class="card" id="visualReview">
+    <div class="row" style="justify-content:space-between">
+      <h2 style="margin:0">4. 派生任务运行状态与图片审查</h2>
+      <button id="refreshAssets" class="secondary" type="button">刷新状态与图片</button>
+    </div>
+    <p id="visualState">创建派生实验任务后可查看。此处只展示本地人物、场景、CG 和封面图片。</p>
+    <div class="progress-panel">
+      <div class="progress-head"><strong>本地美术资源进度</strong><span id="progressText">0%</span></div>
+      <div class="progress-track" role="progressbar" aria-label="美术资源生成进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="progressBar" class="progress-bar"></div></div>
+      <div id="progressBreakdown" class="progress-breakdown">等待任务启动。</div>
+    </div>
+    <div id="stageList" class="stage-list"></div>
+    <div id="galleryRoot"></div>
+  </section>
+
+  <section class="card"><h2>操作日志</h2><pre id="log">尚无操作</pre></section>
+</main>
+<div id="previewModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <button id="closeModal" class="modal-close" type="button">关闭</button>
+    <h2 id="modalTitle">图片预览</h2>
+    <div class="modal-grid">
+      <img id="modalImage" class="modal-image" alt="美术资源大图预览">
+      <div>
+        <div id="modalMeta" class="status"></div>
+        <h3 style="margin-top:14px">最终提示词</h3>
+        <div id="modalPrompt" class="modal-prompt"></div>
+        <h3 style="margin-top:14px">图生图参考</h3>
+        <div id="modalReferences" class="reference-list"></div>
+        <div class="asset-actions"><a id="modalDebug" target="_blank">在开发者调试窗口查看</a><a id="modalOriginal" target="_blank">打开原图</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  let taskId = "";
+  let projectName = "";
+  let taskOrigin = "";
+  let sourceTaskId = "";
+  let reusePreflightOk = false;
+  let pollTimer = null;
+
+  const log = (value) => { document.getElementById("log").textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2); };
+  const errorText = async (res) => { try { const body = await res.json(); return body.detail || JSON.stringify(body); } catch { return await res.text(); } };
+  const requireTask = () => { if (!taskId) { alert("请先上传小说或创建派生实验任务"); return false; } return true; };
+  const categoryLabels = { characters:"人物立绘", scenes:"场景", cg:"CG", backgrounds:"封面" };
+  const modeLabels = { text_to_image:"文生图", image_to_image:"图生图", local_crop:"本地裁剪", local_copy:"本地复制", fallback_copy:"失败兜底复制", local_composite:"本地拼接", unknown:"未知" };
+  const removeCharacterBackground = () => document.querySelector("input[name=removeCharacterBackground]:checked")?.value === "true";
+
+  function setTaskContext(id, name, origin, sourceId="") {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    taskId = id || "";
+    projectName = name || "";
+    taskOrigin = origin || "";
+    sourceTaskId = sourceId || "";
+    document.getElementById("taskId").textContent = taskId || "-";
+    document.getElementById("taskOrigin").textContent = taskOrigin === "reuse" ? "复用预处理派生任务" : (taskOrigin === "upload" ? "上传完整任务" : "-");
+    document.getElementById("activeSourceTaskId").textContent = sourceTaskId || "-";
+    const projectInput = document.getElementById("projectName");
+    projectInput.value = projectName;
+    projectInput.disabled = taskOrigin === "reuse";
+    const startButton = document.getElementById("startPipeline");
+    startButton.textContent = taskOrigin === "reuse" ? "仅启动人物与场景生图" : "确认并启动项目 Pipeline";
+    if (taskId) {
+      localStorage.setItem("styleAnchorTaskContext", JSON.stringify({taskId, projectName, taskOrigin, sourceTaskId}));
+    }
+  }
+
+  async function refreshStyle() {
+    if (!taskId) return;
+    const res = await fetch(`/api/tasks/${taskId}/style`);
+    if (!res.ok) throw new Error(await errorText(res));
+    const cfg = await res.json();
+    const modeControl = document.querySelector(`input[name=styleMode][value=${cfg.mode}]`);
+    if (modeControl) modeControl.checked = true;
+    document.getElementById("characterStyle").value = cfg.character.global_style || "";
+    document.getElementById("sceneStyle").value = cfg.scene.global_style || "";
+    const mattingControl = document.querySelector(`input[name=removeCharacterBackground][value=${Boolean(cfg.remove_character_background)}]`);
+    if (mattingControl) mattingControl.checked = true;
+    document.getElementById("mattingState").textContent = cfg.remove_character_background
+      ? "已启动抠图：人物 LS 原图生成后会调用项目本地抠图模型。"
+      : "已关闭抠图：不会加载本地抠图模型，保留 Provider 原始人物背景。";
+    for (const kind of ["character", "scene"]) {
+      const card = document.querySelector(`[data-kind=${kind}]`);
+      const section = cfg[kind];
+      const img = card.querySelector(".preview");
+      if (section.preview_url) { img.src = section.preview_url; img.style.visibility = "visible"; }
+      else { img.removeAttribute("src"); img.style.visibility = "hidden"; }
+      const status = card.querySelector(".status");
+      if (section.confirmed) { status.textContent = `已确认 · ${section.source} · ${section.sha256.slice(0,12)}`; status.className = "status ok"; }
+      else if (section.stale) { status.textContent = "风格文本已变更，请重新生成"; status.className = "status warn"; }
+      else if (section.exists) { status.textContent = `待确认 · ${section.source || "unknown"}`; status.className = "status warn"; }
+      else { status.textContent = "尚未生成或上传"; status.className = "status"; }
+    }
+    const readyText = taskOrigin === "reuse"
+      ? "风格配置已就绪，可仅启动 char_designer → scene_painter。"
+      : "风格配置已就绪，可启动 Pipeline。";
+    document.getElementById("readyState").textContent = cfg.ready_to_start ? readyText : "自定义模式需要两张 Anchor 都完成确认。";
+    document.getElementById("startPipeline").disabled = !cfg.ready_to_start;
+    document.getElementById("anchorPanel").style.opacity = cfg.mode === "custom" ? "1" : ".48";
+    document.querySelectorAll(".anchor .generate, .anchor .upload, .anchor .confirm").forEach((control) => {
+      control.disabled = cfg.mode !== "custom";
+    });
+    return cfg;
+  }
+
+  function renderPreflight(data) {
+    const target = document.getElementById("preflightResult");
+    if (!data.eligible) {
+      target.textContent = `不可复用：${(data.errors || []).join("；")}`;
+      target.className = "preflight status danger";
+      return;
+    }
+    const counts = Object.entries(data.tables || {}).filter(([,count]) => count > 0).map(([name,count]) => `${name}:${count}`).join("，");
+    const warnings = (data.warnings || []).length ? `\n提醒：${data.warnings.join("；")}` : "";
+    target.textContent = `预检通过：${data.source_task.project_name}\n将复用 story_planner / info_extractor，只运行 char_designer → scene_painter。\n已有产物：${counts}${warnings}`;
+    target.className = "preflight status ok";
+  }
+
+  document.getElementById("sourceTaskId").addEventListener("input", () => {
+    reusePreflightOk = false;
+    document.getElementById("createReuse").disabled = true;
+    document.getElementById("preflightResult").textContent = "source_task_id 已变化，请重新预检。";
+  });
+
+  document.getElementById("preflightReuse").addEventListener("click", async () => {
+    const source = document.getElementById("sourceTaskId").value.trim();
+    if (!source) { alert("请填写 source_task_id"); return; }
+    const button = document.getElementById("preflightReuse");
+    button.disabled = true; log("正在只读检查源任务的预处理产物…");
+    try {
+      const res = await fetch("/api/reuse/preflight", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({source_task_id:source})});
+      if (!res.ok) throw new Error(await errorText(res));
+      const data = await res.json();
+      reusePreflightOk = Boolean(data.eligible);
+      document.getElementById("createReuse").disabled = !reusePreflightOk;
+      renderPreflight(data); log(data);
+    } catch (e) {
+      reusePreflightOk = false; document.getElementById("createReuse").disabled = true;
+      document.getElementById("preflightResult").textContent = `预检失败：${e.message}`;
+      log(`预检失败: ${e.message}`);
+    } finally { button.disabled = false; }
+  });
+
+  document.getElementById("createReuse").addEventListener("click", async () => {
+    if (!reusePreflightOk) { alert("请先完成预检"); return; }
+    const button = document.getElementById("createReuse");
+    const source = document.getElementById("sourceTaskId").value.trim();
+    button.disabled = true; log("正在克隆并净化预处理产物，创建独立派生任务…");
+    try {
+      const body = {
+        source_task_id: source,
+        project_name: document.getElementById("reuseProjectName").value.trim() || null,
+        image_model: document.getElementById("reuseImageModel").value,
+        character_global_style: document.getElementById("characterStyle").value,
+        scene_global_style: document.getElementById("sceneStyle").value,
+        remove_character_background: removeCharacterBackground()
+      };
+      const res = await fetch("/api/reuse/create", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+      if (!res.ok) throw new Error(await errorText(res));
+      const data = await res.json();
+      document.getElementById("imageModel").value = body.image_model;
+      setTaskContext(data.derived_task_id, data.project_name, "reuse", data.source_task_id);
+      log(data); await refreshStyle(); await refreshVisualAssets();
+    } catch (e) { log(`创建派生任务失败: ${e.message}`); }
+    finally { button.disabled = !reusePreflightOk; }
+  });
+
+  async function loadExistingReuse(id, shouldLog=true) {
+    const derivedId = (id || "").trim();
+    if (!derivedId) { alert("请填写派生 task_id"); return; }
+    const res = await fetch(`/api/tasks/${derivedId}/visual-assets`);
+    if (!res.ok) throw new Error(await errorText(res));
+    const data = await res.json();
+    setTaskContext(data.task_id, data.project_name, "reuse", data.source_task_id);
+    document.getElementById("existingDerivedTaskId").value = data.task_id;
+    document.getElementById("imageModel").value = data.image_model;
+    document.getElementById("reuseImageModel").value = data.image_model;
+    await refreshStyle();
+    await refreshVisualAssets();
+    if (data.visual_state === "processing") startPolling();
+    if (shouldLog) log(data);
+  }
+
+  document.getElementById("loadReuse").addEventListener("click", async () => {
+    const button = document.getElementById("loadReuse"); button.disabled = true;
+    try { await loadExistingReuse(document.getElementById("existingDerivedTaskId").value); }
+    catch (e) { log(`加载派生任务失败: ${e.message}`); }
+    finally { button.disabled = false; }
+  });
+
+  document.getElementById("uploadForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = event.target.querySelector("button"); button.disabled = true; log("正在调用项目 Gateway 上传小说…");
+    try {
+      const form = new FormData(event.target);
+      const res = await fetch("/api/upload", { method:"POST", body:form });
+      if (!res.ok) throw new Error(await errorText(res));
+      const data = await res.json();
+      setTaskContext(data.task_id, data.project_name, "upload");
+      log(data); await refreshStyle();
+    } catch (e) { log(`上传失败: ${e.message}`); } finally { button.disabled = false; }
+  });
+
+  document.getElementById("saveStyle").addEventListener("click", async () => {
+    if (!requireTask()) return;
+    const mode = document.querySelector("input[name=styleMode]:checked").value;
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/style`, { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ mode, character_global_style:document.getElementById("characterStyle").value, scene_global_style:document.getElementById("sceneStyle").value, remove_character_background:removeCharacterBackground() }) });
+      if (!res.ok) throw new Error(await errorText(res));
+      log(await res.json()); await refreshStyle();
+    } catch (e) { log(`保存失败: ${e.message}`); }
+  });
+
+  document.querySelectorAll(".anchor").forEach((card) => {
+    const kind = card.dataset.kind;
+    card.querySelector(".generate").addEventListener("click", async () => {
+      if (!requireTask()) return;
+      const button = card.querySelector(".generate"); button.disabled = true; log(`正在调用项目 Provider 生成 ${kind} Anchor…`);
+      try {
+        const res = await fetch(`/api/tasks/${taskId}/anchors/${kind}/generate`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({image_model:document.getElementById("imageModel").value}) });
+        if (!res.ok) throw new Error(await errorText(res));
+        log(await res.json()); await refreshStyle();
+      } catch (e) { log(`Anchor 生成失败: ${e.message}`); } finally { button.disabled = false; }
+    });
+    card.querySelector(".upload").addEventListener("change", async (event) => {
+      if (!requireTask() || !event.target.files[0]) return;
+      const form = new FormData(); form.append("image", event.target.files[0]); log(`正在上传 ${kind} Anchor…`);
+      try {
+        const res = await fetch(`/api/tasks/${taskId}/anchors/${kind}/upload`, {method:"POST",body:form});
+        if (!res.ok) throw new Error(await errorText(res));
+        log(await res.json()); await refreshStyle();
+      } catch (e) { log(`Anchor 上传失败: ${e.message}`); }
+    });
+    card.querySelector(".confirm").addEventListener("click", async () => {
+      if (!requireTask()) return;
+      try {
+        const res = await fetch(`/api/tasks/${taskId}/anchors/${kind}/confirm`, {method:"POST"});
+        if (!res.ok) throw new Error(await errorText(res));
+        log(await res.json()); await refreshStyle();
+      } catch (e) { log(`Anchor 确认失败: ${e.message}`); }
+    });
+  });
+
+  function renderStages(stages) {
+    const root = document.getElementById("stageList"); root.innerHTML = "";
+    for (const [name,status] of Object.entries(stages || {})) {
+      const item = document.createElement("span"); item.className = `stage ${status}`;
+      item.textContent = `${name}: ${status}`; root.appendChild(item);
+    }
+  }
+
+  function renderProgress(data) {
+    const percentage = Math.max(0, Math.min(100, Number(data?.visual_progress_percentage || 0)));
+    document.getElementById("progressText").textContent = `${percentage}%`;
+    document.getElementById("progressBar").style.width = `${percentage}%`;
+    const track = document.querySelector(".progress-track");
+    track.setAttribute("aria-valuenow", String(percentage));
+    const breakdown = data?.progress_breakdown || {};
+    const parts = ["characters","scenes","cg","backgrounds"].map((category) => {
+      const item = breakdown[category] || {};
+      return `${categoryLabels[category]} ${item.generated || 0}/${item.expected || 0}`;
+    });
+    document.getElementById("progressBreakdown").textContent = `${parts.join(" · ")}。进度依据本地已落盘资源与上游预期数量计算。`;
+  }
+
+  function appendReferences(root, references, emptyText="无图生图参考（文生图或本地后处理）") {
+    root.innerHTML = "";
+    if (!references?.length) {
+      const empty = document.createElement("div"); empty.className = "empty"; empty.textContent = emptyText; root.appendChild(empty); return;
+    }
+    for (const reference of references) {
+      const item = document.createElement(reference.url ? "a" : "div"); item.className = "reference";
+      if (reference.url) { item.href = reference.url; item.target = "_blank"; }
+      if (reference.url) {
+        const img = document.createElement("img"); img.src = reference.url; img.alt = reference.name || reference.role; img.loading = "lazy"; item.appendChild(img);
+      }
+      const text = document.createElement("span");
+      text.textContent = `${reference.role || "参考图"}：${reference.name || reference.relative_path || "未知"}${reference.exists === false ? "（当前文件缺失）" : ""}`;
+      item.appendChild(text); root.appendChild(item);
+    }
+  }
+
+  function openPreview(item) {
+    const debug = item.debug || {};
+    document.getElementById("modalTitle").textContent = item.name;
+    document.getElementById("modalImage").src = item.url;
+    document.getElementById("modalMeta").textContent = `${modeLabels[debug.generation_mode] || debug.generation_mode || "未知"} · ${debug.source === "recorded" ? "生成期精确记录" : "旧任务重建信息"}${debug.model ? ` · ${debug.model}` : ""}`;
+    document.getElementById("modalPrompt").textContent = debug.prompt || "该资源没有 Provider 生图提示词（本地裁剪、复制或拼接资源）。";
+    appendReferences(document.getElementById("modalReferences"), debug.reference_images || []);
+    document.getElementById("modalDebug").href = debug.debug_url || "#";
+    document.getElementById("modalOriginal").href = item.url;
+    document.getElementById("previewModal").classList.add("open");
+  }
+
+  function renderGallery(assets) {
+    const root = document.getElementById("galleryRoot"); root.innerHTML = "";
+    for (const category of ["characters","scenes","cg","backgrounds"]) {
+      const section = document.createElement("section"); section.className = "gallery-section";
+      const title = document.createElement("h3"); title.textContent = `${categoryLabels[category]}（${(assets[category] || []).length}）`; section.appendChild(title);
+      const items = assets[category] || [];
+      if (!items.length) {
+        const empty = document.createElement("div"); empty.className = "empty"; empty.textContent = "尚无图片"; section.appendChild(empty);
+      } else {
+        const gallery = document.createElement("div"); gallery.className = "gallery";
+        for (const item of items) {
+          const debug = item.debug || {};
+          const figure = document.createElement("figure"); figure.className = "asset";
+          const previewButton = document.createElement("button"); previewButton.type = "button"; previewButton.className = "asset-preview"; previewButton.title = "点击查看大图";
+          const img = document.createElement("img"); img.src = item.url; img.alt = item.name; img.loading = "lazy";
+          previewButton.appendChild(img); previewButton.addEventListener("click", () => openPreview(item)); figure.appendChild(previewButton);
+
+          const body = document.createElement("div"); body.className = "asset-body";
+          const caption = document.createElement("figcaption"); caption.textContent = item.name; body.appendChild(caption);
+          const tags = document.createElement("div"); tags.className = "asset-tags";
+          const modeTag = document.createElement("span"); modeTag.className = "tag"; modeTag.textContent = modeLabels[debug.generation_mode] || debug.generation_mode || "未知"; tags.appendChild(modeTag);
+          const sourceTag = document.createElement("span"); sourceTag.className = `tag ${debug.source === "recorded" ? "" : "reconstructed"}`; sourceTag.textContent = debug.source === "recorded" ? "精确审计" : "旧任务重建"; tags.appendChild(sourceTag); body.appendChild(tags);
+
+          const promptDetails = document.createElement("details"); promptDetails.className = "asset-prompt"; promptDetails.open = true;
+          const summary = document.createElement("summary"); summary.textContent = "最终提示词";
+          const prompt = document.createElement("pre"); prompt.textContent = debug.prompt || "无 Provider 生图提示词（本地裁剪、复制或拼接资源）";
+          promptDetails.appendChild(summary); promptDetails.appendChild(prompt); body.appendChild(promptDetails);
+
+          const referenceTitle = document.createElement("div"); referenceTitle.className = "status"; referenceTitle.style.marginTop = "9px"; referenceTitle.textContent = "图生图参考"; body.appendChild(referenceTitle);
+          const references = document.createElement("div"); references.className = "reference-list"; appendReferences(references, debug.reference_images || []); body.appendChild(references);
+
+          const actions = document.createElement("div"); actions.className = "asset-actions";
+          const original = document.createElement("a"); original.href = item.url; original.target = "_blank"; original.textContent = "打开原图";
+          const debugLink = document.createElement("a"); debugLink.href = debug.debug_url || "#"; debugLink.target = "_blank"; debugLink.textContent = "开发者调试";
+          actions.appendChild(original); actions.appendChild(debugLink); body.appendChild(actions);
+          figure.appendChild(body); gallery.appendChild(figure);
+        }
+        section.appendChild(gallery);
+      }
+      root.appendChild(section);
+    }
+  }
+
+  async function refreshVisualAssets() {
+    if (!taskId || taskOrigin !== "reuse") {
+      document.getElementById("visualState").textContent = "当前不是复用预处理派生任务。";
+      document.getElementById("stageList").innerHTML = "";
+      document.getElementById("galleryRoot").innerHTML = "";
+      renderProgress({visual_progress_percentage:0, progress_breakdown:{}});
+      return null;
+    }
+    const res = await fetch(`/api/tasks/${taskId}/visual-assets`);
+    if (!res.ok) throw new Error(await errorText(res));
+    const data = await res.json();
+    const excluded = (data.pipeline_scope?.will_not_run || []).join("、");
+    document.getElementById("visualState").textContent = `状态：${data.visual_state}；完成 ${data.visual_progress_percentage}%；图片 ${data.asset_count} 张；人物抠图：${data.remove_character_background ? "开启" : "关闭"}；明确不运行：${excluded || "-"}${data.error_message ? `；错误：${data.error_message}` : ""}`;
+    renderProgress(data); renderStages(data.stages); renderGallery(data.assets);
+    if (data.visual_state !== "pending") {
+      document.getElementById("startPipeline").disabled = true;
+      document.getElementById("readyState").textContent = data.visual_state === "completed" ? "人物与场景美术生成已完成。" : `当前 visual-only 状态：${data.visual_state}`;
+      document.querySelectorAll("input[name=removeCharacterBackground]").forEach((control) => { control.disabled = true; });
+    } else {
+      document.querySelectorAll("input[name=removeCharacterBackground]").forEach((control) => { control.disabled = false; });
+    }
+    if (["completed","failed"].includes(data.visual_state) && pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    return data;
+  }
+
+  function startPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(() => refreshVisualAssets().catch((e) => log(`状态刷新失败: ${e.message}`)), 3000);
+  }
+
+  document.getElementById("refreshAssets").addEventListener("click", async () => {
+    try { const data = await refreshVisualAssets(); if (data) log(data); }
+    catch (e) { log(`状态刷新失败: ${e.message}`); }
+  });
+
+  document.getElementById("startPipeline").addEventListener("click", async () => {
+    if (!requireTask()) return;
+    const name = document.getElementById("projectName").value.trim() || projectName;
+    if (!name) { alert("请填写作品名"); return; }
+    const button = document.getElementById("startPipeline");
+    button.disabled = true;
+    const visualOnly = taskOrigin === "reuse";
+    log(visualOnly ? "正在提交 char_designer → scene_painter；不会提交音频、BGM 或游戏打包任务…" : "正在调用项目 confirm 接口启动 Pipeline…");
+    try {
+      const res = visualOnly
+        ? await fetch(`/api/tasks/${taskId}/start-visual-only`, {method:"POST"})
+        : await fetch(`/api/tasks/${taskId}/start`, {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({project_name:name})});
+      if (!res.ok) throw new Error(await errorText(res));
+      const data = await res.json(); log(data);
+      document.getElementById("readyState").textContent = visualOnly ? "人物/场景生图任务已提交。" : "Pipeline 已提交。";
+      if (visualOnly) { await refreshVisualAssets(); startPolling(); }
+    } catch (e) { log(`Pipeline 启动失败: ${e.message}`); button.disabled = false; }
+  });
+
+  document.querySelectorAll("input[name=removeCharacterBackground]").forEach((control) => {
+    control.addEventListener("change", () => {
+      document.getElementById("mattingState").textContent = removeCharacterBackground()
+        ? "将启动抠图：人物 LS 原图生成后调用项目本地抠图模型。请保存设置后再启动。"
+        : "将关闭抠图：不会加载本地抠图模型，保留 Provider 原始人物背景。请保存设置后再启动。";
+    });
+  });
+
+  document.getElementById("closeModal").addEventListener("click", () => document.getElementById("previewModal").classList.remove("open"));
+  document.getElementById("previewModal").addEventListener("click", (event) => {
+    if (event.target.id === "previewModal") event.currentTarget.classList.remove("open");
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") document.getElementById("previewModal").classList.remove("open");
+  });
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("styleAnchorTaskContext") || "null");
+      if (saved?.taskOrigin === "reuse" && saved.taskId) {
+        await loadExistingReuse(saved.taskId, false);
+      }
+    } catch (e) {
+      localStorage.removeItem("styleAnchorTaskContext");
+    }
+  });
+</script>
+</body>
+</html>

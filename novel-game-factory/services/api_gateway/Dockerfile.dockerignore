@@ -1,0 +1,19 @@
+# The API Gateway image only copies these packages.  Keeping the build context
+# equally narrow avoids uploading unrelated model weights and worker sources.
+**
+!common/
+!common/**
+!services/
+!services/__init__.py
+!services/api_gateway/
+!services/api_gateway/**
+!services/story_planner/
+!services/story_planner/**
+
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/.venv/
+**/venv/
+**/.env
+**/*.log

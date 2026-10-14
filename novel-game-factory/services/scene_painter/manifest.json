@@ -1,0 +1,36 @@
+{
+  "service": "scene_painter",
+  "version": "1.0.0",
+  "description": "并行生成场景/封面，人物资产完成后生成CG并发布最终人物文件名",
+  "stage_order": 5,
+  "celery": {
+    "task": "services.scene_painter.tasks.generate_scenes",
+    "queue": "scene_queue",
+    "input": "task_id",
+    "regenerate_task": "services.scene_painter.tasks.regenerate_scene_materials"
+  },
+  "reads_from_db": [
+    "task_id",
+    "art_style"
+  ],
+  "reads_from_fs": [
+    "outputs/{task_id}/story_tree.json"
+  ],
+  "writes_to_db": [
+    "scene_painter_status",
+    "progress_percentage",
+    "error_message",
+    "visual_asset_checkpoints"
+  ],
+  "writes_to_fs": [
+    "outputs/{task_id}/images/scenes/",
+    "outputs/{task_id}/images/backgrounds/",
+    "outputs/{task_id}/images/cg/"
+  ],
+  "depends_on": [
+    "info_extractor"
+  ],
+  "required_by": [
+    "game_builder"
+  ]
+}

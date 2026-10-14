@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: novel-game-config
+  namespace: novel-game
+data:
+  TZ: "Asia/Shanghai"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  # 生成任务可运行十几个小时；48h 才判定失控，Redis/Rabbit 租约保留 14 天。
+  MAIN_TASK_TIME_LIMIT: "172800"
+  MAIN_TASK_SOFT_TIME_LIMIT: "171600"
+  CELERY_VISIBILITY_TIMEOUT: "1209600"
+  ADAPTER_CONCURRENCY: "10"
+  ADAPTER_DISPATCH_MARKER_TTL: "1209600"
+  STAGE_LEASE_TTL: "1800"
+  STAGE_LEASE_RENEW_INTERVAL: "60"
+  ADAPTER_WORKER_RECOVERY_GRACE: "2100"
+  # 每个生图阶段在单个 Celery 任务内并发 2 路；Pod 副本和 Celery 并发另行控制。
+  IMAGE_GENERATION_CONCURRENCY: "2"
+  CHAR_CALM_IMAGE_CONCURRENCY: "2"
+  CHAR_VARIANT_IMAGE_CONCURRENCY: "2"
+  CHAR_EMOTION_IMAGE_CONCURRENCY: "2"
+  CHAR_CG_IDENTITY_IMAGE_CONCURRENCY: "2"
+  SCENE_BASE_IMAGE_CONCURRENCY: "2"
+  SCENE_VARIANT_IMAGE_CONCURRENCY: "2"
+  SCENE_RETRY_IMAGE_CONCURRENCY: "2"
+  CG_IMAGE_CONCURRENCY: "2"
+  CG_RETRY_IMAGE_CONCURRENCY: "2"
+  COVER_IMAGE_CONCURRENCY: "2"
+  # 总额度由外部统一闸门与各服务账号/RPM治理；0 表示关闭本项目重复限额。
+  TASK_MAX_TOTAL_TOKENS: "0"
+  TASK_MAX_API_CALLS: "0"
+  TASK_MAX_IMAGES: "0"
+  TASK_MAX_TTS_CHARS: "0"
+  TASK_MAX_MUSIC: "0"
+  # 视觉默认路线固定为 mode=llm：由视觉阶段生成 global_style 与自动 Anchor；
+  # 仅任务明确写入 mode=custom 时使用用户自定义 Anchor。
+  # 兼容尚未滚动完成的旧镜像，固定为 1；新代码不读取此变量。
+  LLM_LAZY_STYLE_ANCHOR_ENABLED: "1"
+  # 30 × 50 万字批量入队；正文落 PVC/OSS，队列消息只传 task_id。
+  GATEWAY_MAX_BATCH_REQUEST_BYTES: "75497472"
+  GATEWAY_MAX_BATCH_FILE_BYTES: "67108864"
+  GATEWAY_MAX_BATCH_TOTAL_CHARS: "50000000"
+  GATEWAY_MAX_NOVEL_CHARS: "1500000"
+  GATEWAY_BATCH_PERSIST_CONCURRENCY: "10"
+  GATEWAY_BATCH_SUBMIT_CONCURRENCY: "10"
+  GATEWAY_BATCH_RECONCILE_INTERVAL_SECONDS: "60"
+  GATEWAY_BATCH_RECONCILE_LIMIT: "100"
+  ASSET_MAX_TOTAL_RETRIES: "5"
+  ASSET_RETRIES_PER_ROUND: "2"
+  AUDIO_CACHE_NAMESPACE: "company-gateway/stable-audio-3/revision-1"
+  STABLE_AUDIO_STEPS: "8"
+  DB_HOST: "172.16.1.1"
+  DB_PORT: "5432"
+  DB_NAME: "extreme"
+  DB_USER: "test"
+  # 平台库(agent_platform):跨模块共用表(name_mappings/plots/sound/backgrounds/cg/
+  # character_prompts/characters/novel_tasks/scene_prompts/story_tree_json/story_tree_md/api_usage)已迁至此
+  PLATFORM_DB_HOST: "172.16.1.1"
+  PLATFORM_DB_PORT: "5432"
+  PLATFORM_DB_NAME: "agent_platform"
+  PLATFORM_DB_USER: "test"
+  GROUP_NAME: "group-ref"
+  STORAGE_PATH: "/storage"
+  OSS_DISABLED: "1"
+  LLM_PROVIDER: "qwen"
+  LLM_API_FORMAT: "openai"
+  LLM_MODEL: "gpt-5.6-sol"
+  GPT_IMAGE_BASE_URL: "https://ai.farmmx.com"
+  # 与 GPT_IMAGE_BASE_URL 同一网关：info_extractor 抽取剧情、audio_producer 配音选角走 /v1，
+  # MINIMAX TTS 走网关中转的 /v1/audio/speech（不直连 MINIMAX_T2A_URL）。
+  PLOT_BASE_URL: "https://ai.farmmx.com/v1"
+  MINIMAX_URL: "https://ai.farmmx.com/v1/audio/speech"
+  # 运维账号池落地后只需把这些地址改成内部网关，业务代码不再硬编码供应商。
+  DASHSCOPE_BASE_URL: "https://dashscope.aliyuncs.com/api/v1"
+  DASHSCOPE_COMPATIBLE_BASE_URL: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  MINIMAX_T2A_URL: "https://api.minimaxi.com/v1/t2a_v2"
+  DOMAIN: "localhost"
+  TRANSLATOR_MODEL_DIR: "/storage/models"
+  TRANSFORMERS_OFFLINE: "1"
+  CDN_BASE_URL: ""
+  PLATFORM_API_URL: "http://platform-api.agent-platform.svc.cluster.local:8000"

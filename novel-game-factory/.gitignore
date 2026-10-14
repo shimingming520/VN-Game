@@ -1,0 +1,27 @@
+.DS_Store
+/services/script_director/log/
+
+# Python 编译产物(与 game-platform / creation-engine 的 .gitignore 对齐)
+__pycache__/
+*.pyc
+.env
+
+# story_planner local secret-bearing env files (templates remain tracked)
+/services/story_planner/.env.local
+/services/story_planner/.env.k8s
+/services/story_planner/.cache/
+/services/story_planner/smoke_output/
+
+# 本地运行日志（线上日志配置不受影响）
+/services/*/log/
+/services/*/logs/
+/services/story_planner/story_planner.log
+/storage/local_logs/
+
+# 本地及线上流水线运行产物（保留固定路径，但不纳入版本控制）
+/storage/built_games/
+/storage/outputs/
+/storage/raw_novels/
+
+# 本地开发与续跑工具（不得提交或进入线上交付）
+/.local_dev/

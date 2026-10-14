@@ -1,0 +1,184 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vector
+  namespace: agent-platform
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: novel-game-vector-logs
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces", "nodes", "pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: novel-game-vector-logs
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: novel-game-vector-logs
+subjects:
+  - kind: ServiceAccount
+    name: vector
+    namespace: agent-platform
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-config
+  namespace: agent-platform
+data:
+  vector.yaml: |
+    api:
+      enabled: true
+      address: 0.0.0.0:8686
+
+    data_dir: /vector-data-dir
+
+    sources:
+      kubernetes_logs:
+        type: kubernetes_logs
+        self_node_name: "${VECTOR_SELF_NODE_NAME}"
+        auto_partial_merge: true
+
+    transforms:
+      project_logs:
+        type: filter
+        inputs: ["kubernetes_logs"]
+        condition: >-
+          .kubernetes.pod_namespace == "novel-game" ||
+          .kubernetes.pod_namespace == "agent-platform"
+
+      classify_level:
+        type: remap
+        inputs: ["project_logs"]
+        source: |
+          .app = if is_string(.kubernetes.pod_labels.app) && .kubernetes.pod_labels.app != "" {
+            .kubernetes.pod_labels.app
+          } else if is_string(.kubernetes.container_name) && .kubernetes.container_name != "" {
+            .kubernetes.container_name
+          } else {
+            "unknown"
+          }
+          message = downcase(to_string!(.message))
+          .level = "info"
+
+          if match(message, r'(?i)(critical|fatal|traceback|exception|(^|[^a-z])error([^a-z]|$)|❌|错误|失败|崩溃)') {
+            .level = "error"
+          } else if match(message, r'(?i)(warning|(^|[^a-z])warn([^a-z]|$)|⚠️?|警告)') {
+            .level = "warn"
+          } else if match(message, r'(?i)((^|[^a-z])debug([^a-z]|$))') {
+            .level = "debug"
+          }
+
+          # 高基数内容只保留在日志正文中，不变成 Loki label。
+          # 删除无查询价值且体积很大的 Kubernetes metadata。
+          del(.kubernetes.pod_annotations)
+          del(.kubernetes.namespace_annotations)
+
+    sinks:
+      loki:
+        type: loki
+        inputs: ["classify_level"]
+        endpoint: http://loki.agent-platform.svc.cluster.local:3100
+        healthcheck:
+          enabled: true
+        encoding:
+          codec: json
+        labels:
+          namespace: "{{ kubernetes.pod_namespace }}"
+          app: "{{ app }}"
+          pod: "{{ kubernetes.pod_name }}"
+          container: "{{ kubernetes.container_name }}"
+          node: "{{ kubernetes.pod_node_name }}"
+          stream: "{{ stream }}"
+          level: "{{ level }}"
+        batch:
+          max_bytes: 1048576
+          timeout_secs: 1
+        buffer:
+          type: disk
+          max_size: 536870912
+          when_full: block
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: vector
+  namespace: agent-platform
+  labels:
+    app: vector
+spec:
+  selector:
+    matchLabels:
+      app: vector
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: vector
+    spec:
+      serviceAccountName: vector
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: vector
+          image: timberio/vector:0.49.0-debian
+          imagePullPolicy: IfNotPresent
+          args:
+            - --config
+            - /etc/vector/vector.yaml
+          env:
+            - name: VECTOR_SELF_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          ports:
+            - name: api
+              containerPort: 8686
+          readinessProbe:
+            tcpSocket:
+              port: api
+            periodSeconds: 10
+            timeoutSeconds: 2
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 0
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: config
+              mountPath: /etc/vector
+              readOnly: true
+            - name: var-log
+              mountPath: /var/log
+              readOnly: true
+            - name: data
+              mountPath: /vector-data-dir
+      terminationGracePeriodSeconds: 60
+      volumes:
+        - name: config
+          configMap:
+            name: vector-config
+        - name: var-log
+          hostPath:
+            path: /var/log
+        - name: data
+          hostPath:
+            path: /var/lib/novel-game-vector
+            type: DirectoryOrCreate

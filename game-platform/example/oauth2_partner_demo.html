@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin OAuth2 第三方接入演示</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #657089;
+      --line: #dce3ee;
+      --primary: #2357d9;
+      --primary-dark: #1944af;
+      --danger: #b42318;
+      --danger-bg: #fff1f0;
+      --success: #067647;
+      --success-bg: #ecfdf3;
+      --warning: #9a6700;
+      --warning-bg: #fff8db;
+      --code: #101828;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, #e8efff 0, transparent 32rem), var(--bg);
+      color: var(--text);
+    }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 38px 0 64px;
+    }
+    .hero {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+    h1 { margin: 0 0 8px; font-size: clamp(26px, 4vw, 38px); letter-spacing: -0.03em; }
+    h2 { margin: 0; font-size: 19px; }
+    p { margin: 0; }
+    .subtitle { color: var(--muted); line-height: 1.65; }
+    .badge {
+      flex: 0 0 auto;
+      padding: 7px 11px;
+      border: 1px solid #b8c8f2;
+      border-radius: 999px;
+      background: #edf3ff;
+      color: #294b9b;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .notice {
+      margin-bottom: 20px;
+      padding: 15px 17px;
+      border: 1px solid #f3cf72;
+      border-radius: 12px;
+      background: var(--warning-bg);
+      color: #6f4c00;
+      line-height: 1.65;
+    }
+    .notice strong { color: #714700; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .card {
+      min-width: 0;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+      box-shadow: 0 10px 28px rgba(24, 40, 72, 0.06);
+    }
+    .card.wide { grid-column: 1 / -1; }
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+    .step {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      margin-right: 9px;
+      border-radius: 9px;
+      background: #eaf0ff;
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .hint { color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+    .fields { display: grid; gap: 13px; }
+    .field { display: grid; gap: 6px; }
+    .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    label { color: #344054; font-size: 13px; font-weight: 700; }
+    input, textarea {
+      width: 100%;
+      border: 1px solid #cfd8e6;
+      border-radius: 9px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input { height: 41px; padding: 0 11px; }
+    textarea { min-height: 86px; padding: 10px 11px; resize: vertical; line-height: 1.5; }
+    input:focus, textarea:focus { border-color: #7d9bea; box-shadow: 0 0 0 3px rgba(35, 87, 217, .12); }
+    input[readonly], textarea[readonly] { background: #f8fafc; color: #475467; }
+    .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 12px; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+    .btn {
+      min-height: 39px;
+      padding: 8px 14px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      font-weight: 750;
+    }
+    .btn.primary { background: var(--primary); color: #fff; }
+    .btn.primary:hover { background: var(--primary-dark); }
+    .btn.secondary { border-color: #cbd5e1; background: #fff; color: #344054; }
+    .btn.secondary:hover { background: #f8fafc; }
+    .btn.danger { border-color: #f4b4ae; background: var(--danger-bg); color: var(--danger); }
+    .btn:disabled { cursor: not-allowed; opacity: .48; }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #475467;
+      font-size: 13px;
+    }
+    .check input { width: 16px; height: 16px; }
+    .status {
+      margin-top: 13px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      background: #f2f4f7;
+      color: #475467;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .status.success { background: var(--success-bg); color: var(--success); }
+    .status.error { background: var(--danger-bg); color: var(--danger); }
+
+    .api-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .api-box { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #fbfcfe; }
+    .api-box h3 { margin: 0 0 7px; font-size: 15px; }
+    .api-box .hint { min-height: 40px; }
+    .api-box textarea { min-height: 120px; margin-top: 10px; }
+
+    .response {
+      min-height: 180px;
+      max-height: 480px;
+      overflow: auto;
+      margin: 0;
+      padding: 15px;
+      border-radius: 12px;
+      background: var(--code);
+      color: #d1e0ff;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.55;
+      font: 12px/1.55 "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    @media (max-width: 860px) {
+      .grid, .api-grid { grid-template-columns: 1fr; }
+      .card.wide { grid-column: auto; }
+      .hero { flex-direction: column; }
+    }
+    @media (max-width: 560px) {
+      .page { width: min(100% - 20px, 1180px); padding-top: 24px; }
+      .field-row { grid-template-columns: 1fr; }
+      .card { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <h1>Admin OAuth2 第三方接入演示</h1>
+        <p class="subtitle">纯浏览器模拟第三方前端和第三方后端，覆盖 Authorization Code + PKCE、Token、UserInfo、业务接口和撤销流程。</p>
+      </div>
+      <span class="badge">仅供本地 / 测试环境</span>
+    </header>
+
+    <div class="notice">
+      <strong>安全提醒：</strong>本页为了联调，会把 <code>client_secret</code> 保存在浏览器 <code>localStorage</code>，刷新页面后仍会自动恢复。任何正式环境都必须把 Token/Revoke 调用放在第三方后端，禁止把 <code>client_secret</code> 交给浏览器；测试完成后请点击“清除页面敏感数据”。
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <div class="card-head"><h2><span class="step">1</span>第三方配置</h2></div>
+        <div class="fields">
+          <div class="field">
+            <label for="apiBase">Admin API Base URL</label>
+            <input id="apiBase" value="http://127.0.0.1:9100" placeholder="https://testapi.example.com/admin">
+            <span class="hint">可以包含网关前缀，例如 <code>https://host/admin</code>。</span>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="clientId">Client ID</label>
+              <input id="clientId" autocomplete="off" placeholder="adm_xxx">
+            </div>
+            <div class="field">
+              <label for="clientSecret">Client Secret</label>
+              <input id="clientSecret" type="password" autocomplete="off" placeholder="只用于本地演示">
+            </div>
+          </div>
+          <div class="field">
+            <label for="redirectUri">Redirect URI</label>
+            <input id="redirectUri" placeholder="http://127.0.0.1:8088/oauth2_partner_demo.html">
+            <span class="hint">必须与 OAuth2 Client 白名单完全一致，建议直接使用当前页面无查询参数的地址。</span>
+          </div>
+          <label class="check"><input id="autoExchange" type="checkbox" checked> callback 返回后校验 state 并自动换取 Token</label>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2><span class="step">2</span>发起授权</h2></div>
+        <p class="hint">页面生成 PKCE 和 state，请求 <code>/business/oauth2/authorize</code>，再根据接口返回地址跳转到专用 Admin OAuth2 登录页。</p>
+        <div class="actions">
+          <button id="prepareAuthorize" class="btn secondary">获取授权登录地址</button>
+          <button id="startAuthorize" class="btn primary">获取并跳转</button>
+        </div>
+        <div class="field" style="margin-top: 14px">
+          <label for="adminLoginUrl">Admin OAuth2 登录页地址</label>
+          <textarea id="adminLoginUrl" class="mono" readonly placeholder="调用 /business/oauth2/authorize 后显示"></textarea>
+        </div>
+        <div class="actions">
+          <button id="navigateAuthorize" class="btn secondary" disabled>跳转到此地址</button>
+        </div>
+        <div id="authorizeStatus" class="status">等待发起授权。</div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2><span class="step">3</span>Callback 与换 Token</h2></div>
+        <div class="fields">
+          <div class="field">
+            <label for="authorizationCode">Authorization Code</label>
+            <input id="authorizationCode" class="mono" autocomplete="off" placeholder="callback 中的 code">
+          </div>
+          <div class="field">
+            <label for="codeVerifier">PKCE Code Verifier</label>
+            <textarea id="codeVerifier" class="mono" placeholder="发起授权时自动生成"></textarea>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="exchangeToken" class="btn primary">换取 Access Token</button>
+        </div>
+        <div id="callbackStatus" class="status">当前 URL 未检测到 callback 参数。</div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2><span class="step">4</span>Token 与管理员信息</h2></div>
+        <div class="field">
+          <label for="accessToken">Access Token</label>
+          <textarea id="accessToken" class="mono" placeholder="换 Token 成功后显示"></textarea>
+        </div>
+        <div class="actions">
+          <button id="getUserInfo" class="btn primary">GET /business/oauth2/userinfo</button>
+          <button id="copyToken" class="btn secondary">复制 Token</button>
+          <button id="revokeToken" class="btn danger">撤销 Token</button>
+        </div>
+        <div id="tokenStatus" class="status">尚未获取 Token。</div>
+      </section>
+
+      <section class="card wide">
+        <div class="card-head">
+          <div>
+            <h2><span class="step">5</span>调用已授权业务接口</h2>
+            <p class="hint" style="margin-top: 5px">三个接口都使用同一个 <code>game.publish</code> Token，并继续受管理员角色的 Casbin 权限约束。</p>
+          </div>
+        </div>
+        <div class="api-grid">
+          <div class="api-box">
+            <h3>游戏分类列表</h3>
+            <p class="hint"><code>POST /business/game/class/list</code></p>
+            <textarea id="gameClassBody" class="mono">{
+  "site_id": 0
+}</textarea>
+            <div class="actions"><button id="getGameClasses" class="btn secondary">发送请求</button></div>
+          </div>
+          <div class="api-box">
+            <h3>标签列表</h3>
+            <p class="hint"><code>GET /business/tag/list</code></p>
+            <div class="field-row" style="margin-top: 10px">
+              <div class="field"><label for="tagPage">Page</label><input id="tagPage" type="number" min="1" value="1"></div>
+              <div class="field"><label for="tagPageSize">Page Size</label><input id="tagPageSize" type="number" min="1" value="20"></div>
+            </div>
+            <div class="field" style="margin-top: 10px"><label for="tagName">名称（可选）</label><input id="tagName"></div>
+            <div class="actions"><button id="getTags" class="btn secondary">发送请求</button></div>
+          </div>
+          <div class="api-box">
+            <h3>发布 / 设置游戏</h3>
+            <p class="hint"><code>POST /business/game/set</code> 会写入业务数据，请按环境填写。</p>
+            <textarea id="gameSetBody" class="mono">{
+  "id": 0,
+  "site_id": 0,
+  "name": "OAuth2 Demo Game",
+  "story_id": "oauth2_demo_game",
+  "status": 2
+}</textarea>
+            <div class="actions"><button id="setGame" class="btn danger">确认并发送</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card wide">
+        <div class="card-head">
+          <h2>请求日志</h2>
+          <button id="clearSensitive" class="btn danger">清除页面敏感数据</button>
+        </div>
+        <pre id="responseLog" class="response">页面已初始化，等待操作。</pre>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    "use strict";
+
+    const FLOW_KEY = "admin_oauth2_partner_demo_flow";
+    const TOKEN_KEY = "admin_oauth2_partner_demo_token";
+    const CONFIG_KEY = "admin_oauth2_partner_demo_config";
+    const $ = (id) => document.getElementById(id);
+
+    function redirectUriForCurrentPage() {
+      const url = new URL(window.location.href);
+      url.search = "";
+      url.hash = "";
+      return url.toString();
+    }
+
+    function normalizeApiBase(value) {
+      return value.trim().replace(/\/+$/, "");
+    }
+
+    function apiUrl(path) {
+      return normalizeApiBase($("apiBase").value) + "/" + path.replace(/^\/+/, "");
+    }
+
+    function randomBase64Url(byteLength) {
+      const bytes = new Uint8Array(byteLength);
+      crypto.getRandomValues(bytes);
+      return bytesToBase64Url(bytes);
+    }
+
+    function bytesToBase64Url(bytes) {
+      let binary = "";
+      for (const byte of bytes) binary += String.fromCharCode(byte);
+      return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    }
+
+    async function pkceChallenge(verifier) {
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+      return bytesToBase64Url(new Uint8Array(digest));
+    }
+
+    function basicAuthorization(clientId, clientSecret) {
+      const bytes = new TextEncoder().encode(clientId + ":" + clientSecret);
+      let binary = "";
+      for (const byte of bytes) binary += String.fromCharCode(byte);
+      return "Basic " + btoa(binary);
+    }
+
+    function setStatus(id, message, type = "") {
+      const element = $(id);
+      element.textContent = message;
+      element.className = "status" + (type ? " " + type : "");
+    }
+
+    function redacted(value) {
+      if (!value || typeof value !== "object") return value;
+      if (Array.isArray(value)) return value.map(redacted);
+      const result = {};
+      for (const [key, item] of Object.entries(value)) {
+        if (/secret|access_token|token|code_verifier/i.test(key) && typeof item === "string") {
+          result[key] = item.length > 16 ? item.slice(0, 8) + "..." + item.slice(-5) : "***";
+        } else {
+          result[key] = redacted(item);
+        }
+      }
+      return result;
+    }
+
+    function log(title, payload) {
+      const timestamp = new Date().toLocaleTimeString();
+      const rendered = typeof payload === "string" ? payload : JSON.stringify(redacted(payload), null, 2);
+      $("responseLog").textContent = `[${timestamp}] ${title}\n${rendered}\n\n` + $("responseLog").textContent;
+    }
+
+    async function requestJson(url, options = {}) {
+      const method = options.method || "GET";
+      log(`${method} ${url}`, "发送请求");
+      const response = await fetch(url, {
+        cache: "no-store",
+        credentials: "omit",
+        ...options,
+      });
+      const text = await response.text();
+      let data = null;
+      if (text) {
+        try { data = JSON.parse(text); } catch { data = text; }
+      }
+      log(`${response.status} ${method} ${url}`, data ?? "<empty response>");
+      if (!response.ok) {
+        const error = new Error(`HTTP ${response.status}`);
+        error.payload = data;
+        throw error;
+      }
+      return data;
+    }
+
+    function readConfig(requireSecret = true) {
+      const config = {
+        apiBase: normalizeApiBase($("apiBase").value),
+        clientId: $("clientId").value.trim(),
+        clientSecret: $("clientSecret").value,
+        redirectUri: $("redirectUri").value.trim(),
+      };
+      if (!config.apiBase || !config.clientId || !config.redirectUri || (requireSecret && !config.clientSecret)) {
+        throw new Error("请完整填写 API Base URL、Client ID、Redirect URI 和 Client Secret。");
+      }
+      new URL(config.apiBase);
+      new URL(config.redirectUri);
+      localStorage.setItem(CONFIG_KEY, JSON.stringify({
+        apiBase: config.apiBase,
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+        redirectUri: config.redirectUri,
+      }));
+      return config;
+    }
+
+    function restoreConfig() {
+      $("redirectUri").value = redirectUriForCurrentPage();
+      try {
+        const config = JSON.parse(localStorage.getItem(CONFIG_KEY) || "null");
+        if (config?.apiBase) $("apiBase").value = config.apiBase;
+        if (config?.clientId) $("clientId").value = config.clientId;
+        if (config?.clientSecret) $("clientSecret").value = config.clientSecret;
+        if (config?.redirectUri) $("redirectUri").value = config.redirectUri;
+      } catch (error) {
+        log("读取本地配置失败", error.message);
+      }
+
+      try {
+        const token = JSON.parse(sessionStorage.getItem(TOKEN_KEY) || "null");
+        if (token?.access_token) {
+          $("accessToken").value = token.access_token;
+          setStatus("tokenStatus", `已恢复 ${token.token_type || "Bearer"} Token，scope=${token.scope || "-"}`, "success");
+        }
+      } catch (error) {
+        log("读取 Token 状态失败", error.message);
+      }
+    }
+
+    async function prepareAuthorization(shouldNavigate) {
+      try {
+        const config = readConfig(true);
+        const verifier = randomBase64Url(64);
+        const state = randomBase64Url(32);
+        const challenge = await pkceChallenge(verifier);
+        const flow = {
+          ...config,
+          verifier,
+          state,
+          autoExchange: $("autoExchange").checked,
+          createdAt: Date.now(),
+        };
+        sessionStorage.setItem(FLOW_KEY, JSON.stringify(flow));
+        $("codeVerifier").value = verifier;
+
+        const query = new URLSearchParams({
+          response_type: "code",
+          client_id: config.clientId,
+          redirect_uri: config.redirectUri,
+          scope: "game.publish",
+          state,
+          code_challenge: challenge,
+          code_challenge_method: "S256",
+        });
+        const response = await requestJson(apiUrl("/business/oauth2/authorize") + "?" + query.toString());
+        if (!response?.redirect_uri) throw new Error("authorize 响应缺少 redirect_uri");
+        $("adminLoginUrl").value = response.redirect_uri;
+        $("navigateAuthorize").disabled = false;
+        setStatus("authorizeStatus", "授权参数已校验，已获得 Admin OAuth2 登录页地址。", "success");
+        if (shouldNavigate) window.location.assign(response.redirect_uri);
+      } catch (error) {
+        setStatus("authorizeStatus", error.message, "error");
+        log("发起授权失败", error.payload || error.message);
+      }
+    }
+
+    function restorePendingFlow() {
+      try {
+        const flow = JSON.parse(sessionStorage.getItem(FLOW_KEY) || "null");
+        if (!flow) return null;
+        if (flow.apiBase) $("apiBase").value = flow.apiBase;
+        if (flow.clientId) $("clientId").value = flow.clientId;
+        if (flow.clientSecret) $("clientSecret").value = flow.clientSecret;
+        if (flow.redirectUri) $("redirectUri").value = flow.redirectUri;
+        if (flow.verifier) $("codeVerifier").value = flow.verifier;
+        return flow;
+      } catch (error) {
+        log("读取待完成授权失败", error.message);
+        return null;
+      }
+    }
+
+    async function exchangeToken() {
+      try {
+        const config = readConfig(true);
+        const code = $("authorizationCode").value.trim();
+        const verifier = $("codeVerifier").value.trim();
+        if (!code || !verifier) throw new Error("缺少 authorization code 或 code_verifier。");
+
+        const body = {
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: config.redirectUri,
+          code_verifier: verifier,
+        };
+        const response = await requestJson(apiUrl("/business/oauth2/token"), {
+          method: "POST",
+          headers: {
+            "Authorization": basicAuthorization(config.clientId, config.clientSecret),
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams(body).toString(),
+        });
+        $("accessToken").value = response.access_token || "";
+        sessionStorage.setItem(TOKEN_KEY, JSON.stringify(response));
+        sessionStorage.removeItem(FLOW_KEY);
+        setStatus("tokenStatus", `Token 获取成功，scope=${response.scope || "-"}`, "success");
+        setStatus("callbackStatus", "授权码已成功换取 Token；授权码不能再次使用。", "success");
+
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete("code");
+        cleanUrl.searchParams.delete("state");
+        cleanUrl.searchParams.delete("error");
+        cleanUrl.searchParams.delete("error_description");
+        history.replaceState({}, document.title, cleanUrl.toString());
+      } catch (error) {
+        setStatus("callbackStatus", error.message, "error");
+        log("换取 Token 失败", error.payload || error.message);
+      }
+    }
+
+    function bearerHeaders(extra = {}) {
+      const token = $("accessToken").value.trim();
+      if (!token) throw new Error("请先获取或填写 Access Token。");
+      return { "Authorization": "Bearer " + token, ...extra };
+    }
+
+    async function callAuthorized(title, path, options = {}) {
+      try {
+        const response = await requestJson(apiUrl(path), {
+          ...options,
+          headers: bearerHeaders(options.headers || {}),
+        });
+        setStatus("tokenStatus", `${title}调用成功。`, "success");
+        return response;
+      } catch (error) {
+        setStatus("tokenStatus", `${title}调用失败：${error.message}`, "error");
+        log(`${title}调用失败`, error.payload || error.message);
+        return null;
+      }
+    }
+
+    async function revokeToken() {
+      try {
+        const config = readConfig(true);
+        const token = $("accessToken").value.trim();
+        if (!token) throw new Error("没有可撤销的 Access Token。");
+        const body = { token, token_type_hint: "access_token" };
+        await requestJson(apiUrl("/business/oauth2/revoke"), {
+          method: "POST",
+          headers: {
+            "Authorization": basicAuthorization(config.clientId, config.clientSecret),
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams(body).toString(),
+        });
+        sessionStorage.removeItem(TOKEN_KEY);
+        $("accessToken").value = "";
+        setStatus("tokenStatus", "Token 已撤销。", "success");
+      } catch (error) {
+        setStatus("tokenStatus", `撤销失败：${error.message}`, "error");
+        log("撤销 Token 失败", error.payload || error.message);
+      }
+    }
+
+    function parseJsonInput(id) {
+      try { return JSON.parse($(id).value || "{}"); }
+      catch { throw new Error(`${id} 不是有效 JSON。`); }
+    }
+
+    async function handleCallback() {
+      const query = new URLSearchParams(window.location.search);
+      const error = query.get("error");
+      if (error) {
+        setStatus("callbackStatus", `${error}: ${query.get("error_description") || "授权失败"}`, "error");
+        return;
+      }
+      const code = query.get("code");
+      const returnedState = query.get("state");
+      if (!code) return;
+
+      $("authorizationCode").value = code;
+      const flow = restorePendingFlow();
+      if (!flow) {
+        setStatus("callbackStatus", "收到 code，但当前标签页没有对应的 PKCE/state 数据，请勿换 Token。", "error");
+        return;
+      }
+      if (!returnedState || returnedState !== flow.state) {
+        setStatus("callbackStatus", "state 校验失败，已拒绝自动换 Token。", "error");
+        log("OAuth2 callback state 不匹配", { expected: flow.state, actual: returnedState });
+        return;
+      }
+      setStatus("callbackStatus", "Callback state 校验通过，已恢复 code_verifier。", "success");
+      if (flow.autoExchange) await exchangeToken();
+    }
+
+    function clearSensitiveData() {
+      sessionStorage.removeItem(FLOW_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
+      try {
+        const config = JSON.parse(localStorage.getItem(CONFIG_KEY) || "null");
+        if (config) {
+          delete config.clientSecret;
+          localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+        }
+      } catch {
+        localStorage.removeItem(CONFIG_KEY);
+      }
+      $("clientSecret").value = "";
+      $("authorizationCode").value = "";
+      $("codeVerifier").value = "";
+      $("accessToken").value = "";
+      $("adminLoginUrl").value = "";
+      $("navigateAuthorize").disabled = true;
+      setStatus("authorizeStatus", "已清除待授权状态。", "success");
+      setStatus("callbackStatus", "已清除 callback 敏感数据。", "success");
+      setStatus("tokenStatus", "已清除 Token。", "success");
+      log("清理完成", "已清除 localStorage 中的 client_secret，以及 sessionStorage 中的 PKCE 和 Access Token。");
+    }
+
+    $("prepareAuthorize").addEventListener("click", () => prepareAuthorization(false));
+    $("startAuthorize").addEventListener("click", () => prepareAuthorization(true));
+    $("navigateAuthorize").addEventListener("click", () => {
+      const target = $("adminLoginUrl").value.trim();
+      if (target) window.location.assign(target);
+    });
+    $("exchangeToken").addEventListener("click", exchangeToken);
+    $("getUserInfo").addEventListener("click", () => callAuthorized("UserInfo", "/business/oauth2/userinfo"));
+    $("copyToken").addEventListener("click", async () => {
+      const token = $("accessToken").value.trim();
+      if (!token) return setStatus("tokenStatus", "没有可复制的 Token。", "error");
+      await navigator.clipboard.writeText(token);
+      setStatus("tokenStatus", "Token 已复制到剪贴板。", "success");
+    });
+    $("revokeToken").addEventListener("click", revokeToken);
+    $("getGameClasses").addEventListener("click", () => {
+      try {
+        const body = parseJsonInput("gameClassBody");
+        callAuthorized("游戏分类列表", "/business/game/class/list", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+      } catch (error) { log("游戏分类请求参数错误", error.message); }
+    });
+    $("getTags").addEventListener("click", () => {
+      const query = new URLSearchParams({
+        page: $("tagPage").value || "1",
+        pageSize: $("tagPageSize").value || "20",
+      });
+      const name = $("tagName").value.trim();
+      if (name) query.set("name", name);
+      callAuthorized("标签列表", "/business/tag/list?" + query.toString());
+    });
+    $("setGame").addEventListener("click", () => {
+      if (!window.confirm("/business/game/set 会修改业务数据，确认发送当前 JSON 吗？")) return;
+      try {
+        const body = parseJsonInput("gameSetBody");
+        callAuthorized("设置游戏", "/business/game/set", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+      } catch (error) { log("设置游戏请求参数错误", error.message); }
+    });
+    $("clearSensitive").addEventListener("click", clearSensitiveData);
+
+    restoreConfig();
+    restorePendingFlow();
+    handleCallback();
+  </script>
+</body>
+</html>

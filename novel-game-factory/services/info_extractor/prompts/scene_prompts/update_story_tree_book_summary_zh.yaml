@@ -1,0 +1,27 @@
+metadata:
+  service: info_extractor
+  name: update_story_tree_book_summary_zh
+  version: v1.0
+  language: zh-CN
+  description: "生成书籍简介提示词（中文）- 占位符: {combined_content}"
+  tags:
+    - update-story-tree
+    - book-summary
+    - zh
+
+content: |
+  基于以下小说内容，写一段吸引读者的网文风格简介：
+  
+  内容片段：
+  {combined_content}
+  
+  要求：
+  - 突出核心冲突和看点
+  - 用悬念勾起读者兴趣
+  - 严格控制在80字以内
+  - 使用网文常见的简介写作风格
+  - 可以提及主要角色、核心设定和主要矛盾
+  - 不要剧透太多，要留有悬念
+  - 语言要生动有吸引力
+  - 必须控制在80字以内，不要超出
+  

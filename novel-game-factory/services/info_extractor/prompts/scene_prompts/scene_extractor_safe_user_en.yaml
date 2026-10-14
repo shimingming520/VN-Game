@@ -1,0 +1,20 @@
+metadata:
+  service: info_extractor
+  name: scene_extractor_safe_user
+  version: v1.0
+  language: en-US
+  description: "场景提取器用户提示词模板（安全版）- 包含 {scene_id} 和 {context_text} 两个占位符，传入场景切片ID和对应剧情对话"
+  tags:
+    - scene-extraction
+    - image-prompt
+    - background
+    - user-prompt
+    - safe
+
+content: |
+  【场景切片 ID】: {scene_id}
+
+  【该切片内的剧情】:
+  {context_text}
+
+  请注意：输出的提示词中严禁包含任何色情、性暗示、暴力、血腥相关的词汇或描述。

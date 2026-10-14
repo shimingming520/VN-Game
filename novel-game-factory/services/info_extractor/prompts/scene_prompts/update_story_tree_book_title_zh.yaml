@@ -1,0 +1,25 @@
+metadata:
+  service: info_extractor
+  name: update_story_tree_book_title_zh
+  version: v1.0
+  language: zh-CN
+  description: "生成书名提示词（中文）- 占位符: {combined_content}"
+  tags:
+    - update-story-tree
+    - book-title
+    - zh
+
+content: |
+  基于以下小说内容片段，生成一个吸引人的网络小说书名：
+  
+  内容片段：
+  {combined_content}
+  
+  要求：
+  - 书名要体现故事的核心特色和主题
+  - 使用网络小说常见的标题风格
+  - 控制在2-8个字以内
+  - 避免使用特殊字符
+  - 要有吸引力和商业价值
+  - 不要与原文书名相同
+  

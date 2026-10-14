@@ -1,0 +1,20 @@
+metadata:
+  service: char_designer
+  name: extract_raw_deduplicate_user_en
+  version: v1.0
+  language: en-US
+  prompt_type: user_prompt
+  used_in: analyze_character_with_llm
+  description: "单角色跨节点整合分析用户提示词 - 合并多节点状态，生成统一人物档案"
+  tags:
+    - character-merge
+    - user-prompt
+    - story-tree
+    - english
+
+content: |
+  Please analyze the following {character_count} characters and identify which ones are actually the same character:
+
+  {characters_description}
+  
+  Please identify merge groups and unique characters according to the output format specified in the system prompt.

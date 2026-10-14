@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: novel-game
+spec:
+  replicas: 1
+  minReadySeconds: 10
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: api-gateway
+          image: harbor.farmmx.com/game/api_gateway:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+          envFrom:
+            - configMapRef:
+                name: novel-game-config-test
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: DB_PASSWORD
+            - name: DASHSCOPE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: DASHSCOPE_API_KEY
+            - name: PLATFORM_SERVICE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: PLATFORM_SERVICE_TOKEN
+          volumeMounts:
+            - name: storage
+              mountPath: /storage
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: novel-game-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: novel-game
+spec:
+  selector:
+    app: api-gateway
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: NodePort

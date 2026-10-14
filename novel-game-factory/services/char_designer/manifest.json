@@ -1,0 +1,36 @@
+{
+  "service": "char_designer",
+  "version": "1.0.0",
+  "description": "根据故事树生成角色立绘素材",
+  "stage_order": 2,
+  "celery": {
+    "task": "services.char_designer.tasks.generate_characters",
+    "queue": "char_queue",
+    "input": "task_id",
+    "regenerate_task": "services.char_designer.tasks.regenerate_characters"
+  },
+  "reads_from_db": [
+    "task_id",
+    "art_style",
+    "story_mode"
+  ],
+  "reads_from_fs": [
+    "outputs/{task_id}/story_tree.json"
+  ],
+  "writes_to_db": [
+    "char_designer_status",
+    "progress_percentage",
+    "error_message",
+    "visual_asset_checkpoints"
+  ],
+  "writes_to_fs": [
+    "outputs/{task_id}/images/characters/",
+    "outputs/{task_id}/.resume_sources/char_designer/"
+  ],
+  "depends_on": [
+    "info_extractor"
+  ],
+  "required_by": [
+    "game_builder"
+  ]
+}

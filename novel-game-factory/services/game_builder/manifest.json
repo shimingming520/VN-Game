@@ -1,0 +1,51 @@
+{
+  "service": "game_builder",
+  "version": "1.0.0",
+  "description": "整合所有素材，打包生成可运行的视觉小说游戏",
+  "stage_order": 6,
+  "celery": {
+    "task": "services.game_builder.tasks.build_game_package",
+    "queue": "build_queue",
+    "input": "task_id"
+  },
+  "reads_from_db": [
+    "task_id",
+    "art_style",
+    "story_mode",
+    "ultimate"
+  ],
+  "reads_from_fs": [
+    "outputs/{task_id}/{task_id}.json",
+    "outputs/{task_id}/story_tree.json",
+    "outputs/{task_id}/name_mappings.json",
+    "outputs/{task_id}/atmophere.json",
+    "outputs/{task_id}/images/characters/",
+    "outputs/{task_id}/images/scenes/",
+    "outputs/{task_id}/images/backgrounds/",
+    "outputs/{task_id}/images/cg/",
+    "outputs/{task_id}/{node_id}/audios/{language}-audio/",
+    "outputs/{task_id}/{node_id}/audios/{language}-subtitle/",
+    "outputs/{task_id}/{node_id}/audios/bgm/",
+    "outputs/{task_id}/{node_id}/audios/sfx/",
+    "outputs/{task_id}/{node_id}/audios/ambience/"
+  ],
+  "writes_to_db": [
+    "game_builder_status",
+    "overall_status",
+    "progress_percentage",
+    "completed_at",
+    "error_message"
+  ],
+  "writes_to_fs": [
+    "built_games/{task_id}/"
+  ],
+  "depends_on": [
+    "story_planner",
+    "info_extractor",
+    "char_designer",
+    "audio_producer",
+    "sound_arranger",
+    "scene_painter"
+  ],
+  "required_by": []
+}

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>美术生图调试信息</title>
+  <style>
+    :root { --ink:#17202a; --muted:#667085; --line:#d0d5dd; --brand:#315efb; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif; color:var(--ink); background:#f5f7fb; }
+    main { width:min(1180px,calc(100% - 32px)); margin:24px auto 52px; }
+    h1 { margin:0 0 6px; font-size:25px; }
+    h2 { font-size:17px; margin:0 0 12px; }
+    p { color:var(--muted); line-height:1.6; }
+    .card { margin-top:16px; padding:18px; border:1px solid #e4e7ec; border-radius:13px; background:#fff; box-shadow:0 5px 20px rgba(16,24,40,.04); }
+    .grid { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr); gap:18px; }
+    .preview { width:100%; max-height:76vh; object-fit:contain; border-radius:10px; background:#f2f4f7; }
+    .meta { display:flex; flex-wrap:wrap; gap:7px; margin:9px 0; }
+    .tag { padding:4px 8px; border-radius:999px; background:#eef2ff; color:#2746b6; font-size:12px; }
+    .prompt,pre { white-space:pre-wrap; word-break:break-word; border-radius:9px; padding:12px; font-size:12px; line-height:1.55; }
+    .prompt { max-height:360px; overflow:auto; background:#f8fafc; border:1px solid #eaecf0; }
+    pre { max-height:430px; overflow:auto; background:#101828; color:#e6edf7; }
+    ol { padding-left:22px; line-height:1.65; }
+    .references { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+    .reference { display:block; padding:8px; border:1px solid #e4e7ec; border-radius:9px; color:#344054; text-decoration:none; font-size:12px; }
+    .reference img { width:100%; height:120px; object-fit:contain; background:#f2f4f7; border-radius:6px; margin-bottom:6px; }
+    .error { color:#b42318; }
+    @media (max-width:820px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>美术生图调试信息</h1>
+  <p>独立本地实验页：展示最终 Provider 提示词、实际图生图参考和简要调用逻辑，不包含密钥或远端请求头。</p>
+  <section class="card grid">
+    <div><img id="image" class="preview" alt="待加载图片"></div>
+    <div>
+      <h2 id="title">正在加载…</h2>
+      <div id="meta" class="meta"></div>
+      <h2 style="margin-top:16px">最终提示词</h2>
+      <div id="prompt" class="prompt">加载中…</div>
+    </div>
+  </section>
+  <section class="card"><h2>图生图参考</h2><div id="references" class="references"></div></section>
+  <section class="card"><h2>简要生图逻辑</h2><ol id="logic"></ol></section>
+  <section class="card"><h2>原始调试 JSON</h2><pre id="raw">加载中…</pre></section>
+</main>
+<script>
+  const params = new URLSearchParams(location.search);
+  const taskId = params.get("task_id") || "";
+  const category = params.get("category") || "";
+  const filename = params.get("filename") || "";
+
+  function tag(text) {
+    const node = document.createElement("span"); node.className = "tag"; node.textContent = text; return node;
+  }
+
+  async function loadDebug() {
+    if (!taskId || !category || !filename) throw new Error("URL 缺少 task_id、category 或 filename");
+    const endpoint = `/api/tasks/${encodeURIComponent(taskId)}/visual-assets/${encodeURIComponent(category)}/${encodeURIComponent(filename)}/debug`;
+    const response = await fetch(endpoint);
+    if (!response.ok) {
+      let detail = await response.text();
+      try { detail = JSON.parse(detail).detail || detail; } catch {}
+      throw new Error(detail);
+    }
+    const data = await response.json();
+    document.title = `${data.filename} · 生图调试`;
+    document.getElementById("title").textContent = data.filename;
+    document.getElementById("image").src = data.image_url;
+    const meta = document.getElementById("meta");
+    meta.appendChild(tag(data.generation_mode || "unknown"));
+    meta.appendChild(tag(data.source === "recorded" ? "生成期精确记录" : "旧任务重建信息"));
+    if (data.model) meta.appendChild(tag(data.model));
+    if (data.provider) meta.appendChild(tag(data.provider));
+    document.getElementById("prompt").textContent = data.prompt || "无 Provider 生图提示词（本地裁剪、复制或拼接资源）";
+
+    const references = document.getElementById("references");
+    if (!data.reference_images?.length) {
+      references.textContent = "无图生图参考。";
+    } else {
+      for (const reference of data.reference_images) {
+        const item = document.createElement(reference.url ? "a" : "div"); item.className = "reference";
+        if (reference.url) { item.href = reference.url; item.target = "_blank"; }
+        if (reference.url) {
+          const image = document.createElement("img"); image.src = reference.url; image.alt = reference.name || reference.role; item.appendChild(image);
+        }
+        const text = document.createElement("div"); text.textContent = `${reference.role || "参考图"}：${reference.name || reference.relative_path || "未知"}${reference.exists === false ? "（当前文件缺失）" : ""}`; item.appendChild(text);
+        references.appendChild(item);
+      }
+    }
+
+    const logic = document.getElementById("logic");
+    for (const step of data.logic || []) {
+      const item = document.createElement("li"); item.textContent = step; logic.appendChild(item);
+    }
+    if (!logic.children.length) {
+      const item = document.createElement("li"); item.textContent = "暂无逻辑说明。"; logic.appendChild(item);
+    }
+    document.getElementById("raw").textContent = JSON.stringify(data, null, 2);
+  }
+
+  loadDebug().catch((error) => {
+    document.getElementById("title").textContent = "加载失败";
+    document.getElementById("prompt").textContent = error.message;
+    document.getElementById("prompt").classList.add("error");
+    document.getElementById("raw").textContent = error.stack || error.message;
+  });
+</script>
+</body>
+</html>

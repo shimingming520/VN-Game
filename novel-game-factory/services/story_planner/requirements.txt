@@ -1,0 +1,37 @@
+# story_planner 模块依赖包
+# 安装: pip install -r requirements.txt
+# 此文件包含 story_planner 及其子模块（table, src 等）所需的所有外部依赖
+
+# 核心AI服务依赖
+openai>=1.0.0
+dashscope>=1.18.0  # 阿里云千问 (Qwen) API
+
+# 数据验证和序列化
+pydantic>=2.0.0
+
+# 中文处理
+pypinyin>=0.49.0  # 中文转拼音（用于ID标准化）
+
+# JSON修复工具（用于处理LLM返回的不规范JSON）
+json_repair>=0.2.0
+
+# 环境配置
+python-dotenv>=1.0.0  # .env 文件加载
+
+# 数据库依赖
+sqlmodel>=0.0.31     # SQLModel ORM (基于SQLAlchemy和Pydantic)
+sqlalchemy>=2.0.0    # SQLAlchemy核心
+psycopg2-binary>=2.9.0  # PostgreSQL数据库驱动
+
+# 可选依赖（用于高级功能）
+# langgraph>=0.0.0  # 用于故事生成的工作流框架（可选，未安装时使用传统模式）
+
+# 网络请求库（通常已安装）
+requests>=2.0.0
+
+# Celery 任务队列
+celery>=5.3.0
+redis>=4.5.0
+
+langgraph
+# 注意: Python 版本要求 3.8+

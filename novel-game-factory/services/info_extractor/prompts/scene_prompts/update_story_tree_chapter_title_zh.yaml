@@ -1,0 +1,26 @@
+metadata:
+  service: info_extractor
+  name: update_story_tree_chapter_title_zh
+  version: v1.0
+  language: zh-CN
+  description: "生成章节标题提示词（中文）- 占位符: {chapter_content}"
+  tags:
+    - update-story-tree
+    - chapter-title
+    - zh
+
+content: |
+  基于以下章节内容，生成一个简洁、吸引人的章节标题：
+  
+  章节内容：
+  {chapter_content}
+  
+  要求：
+  - 标题应该反映本章的主要内容或关键事件
+  - 返回简洁的章节主题，不要"第X章："等格式
+  - 标题要简洁明了，控制在10-20字
+  - 避免使用冒号以外的其他特殊标点符号
+  - 不要使用引号
+  - 要有吸引力但不过度夸张
+  - 贴合本章的具体内容
+  

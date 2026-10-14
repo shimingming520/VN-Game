@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-pressure-dashboard
+  namespace: agent-platform
+data:
+  pressure-logs.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "datasource": {"type": "loki", "uid": "loki"},
+          "fieldConfig": {"defaults": {}, "overrides": []},
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+          "id": 1,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+          "targets": [
+            {"datasource": {"type": "loki", "uid": "loki"}, "editorMode": "code", "expr": "sum by (app) (count_over_time({namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\", container=~\"$container\", level=\"error\"}[$__interval]))", "legendFormat": "error {{app}}", "queryType": "range", "refId": "A"},
+            {"datasource": {"type": "loki", "uid": "loki"}, "editorMode": "code", "expr": "sum by (app) (count_over_time({namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\", container=~\"$container\", level=\"warn\"}[$__interval]))", "legendFormat": "warn {{app}}", "queryType": "range", "refId": "B"}
+          ],
+          "title": "Errors and warnings",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 10, "w": 12, "x": 0, "y": 8},
+          "id": 2,
+          "options": {"dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
+          "targets": [
+            {"datasource": {"type": "loki", "uid": "loki"}, "editorMode": "code", "expr": "{namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\", container=~\"$container\", level=\"error\"} | json | line_format `{{.message}}`", "queryType": "range", "refId": "A"}
+          ],
+          "title": "ERROR",
+          "type": "logs"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 10, "w": 12, "x": 12, "y": 8},
+          "id": 3,
+          "options": {"dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
+          "targets": [
+            {"datasource": {"type": "loki", "uid": "loki"}, "editorMode": "code", "expr": "{namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\", container=~\"$container\", level=\"warn\"} | json | line_format `{{.message}}`", "queryType": "range", "refId": "A"}
+          ],
+          "title": "WARNING",
+          "type": "logs"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 12, "w": 24, "x": 0, "y": 18},
+          "id": 4,
+          "options": {"dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
+          "targets": [
+            {"datasource": {"type": "loki", "uid": "loki"}, "editorMode": "code", "expr": "{namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\", container=~\"$container\", level=~\"$level\"} | json | line_format `{{.message}}`", "queryType": "range", "refId": "A"}
+          ],
+          "title": "All logs",
+          "type": "logs"
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 41,
+      "tags": ["novel-game", "pressure-test", "logs"],
+      "templating": {
+        "list": [
+          {"allValue": ".+", "current": {"text": "All", "value": "$__all"}, "datasource": {"type": "loki", "uid": "loki"}, "definition": "label_values(namespace)", "includeAll": true, "label": "Namespace", "name": "namespace", "options": [], "query": "label_values(namespace)", "refresh": 1, "regex": "", "type": "query"},
+          {"allValue": ".+", "current": {"text": "All", "value": "$__all"}, "datasource": {"type": "loki", "uid": "loki"}, "definition": "label_values({namespace=~\"$namespace\"}, app)", "includeAll": true, "label": "App", "name": "app", "options": [], "query": "label_values({namespace=~\"$namespace\"}, app)", "refresh": 1, "regex": "", "type": "query"},
+          {"allValue": ".+", "current": {"text": "All", "value": "$__all"}, "datasource": {"type": "loki", "uid": "loki"}, "definition": "label_values({namespace=~\"$namespace\", app=~\"$app\"}, pod)", "includeAll": true, "label": "Pod", "name": "pod", "options": [], "query": "label_values({namespace=~\"$namespace\", app=~\"$app\"}, pod)", "refresh": 1, "regex": "", "type": "query"},
+          {"allValue": ".+", "current": {"text": "All", "value": "$__all"}, "datasource": {"type": "loki", "uid": "loki"}, "definition": "label_values({namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\"}, container)", "includeAll": true, "label": "Container", "name": "container", "options": [], "query": "label_values({namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\"}, container)", "refresh": 1, "regex": "", "type": "query"},
+          {"allValue": ".+", "current": {"text": "All", "value": "$__all"}, "hide": 0, "includeAll": true, "label": "Level", "multi": true, "name": "level", "options": [], "query": "error,warn,info,debug", "type": "custom"}
+        ]
+      },
+      "time": {"from": "now-15m", "to": "now"},
+      "timezone": "browser",
+      "title": "Novel Game Pressure Test Logs",
+      "uid": "novel-game-pressure-logs",
+      "version": 2
+    }

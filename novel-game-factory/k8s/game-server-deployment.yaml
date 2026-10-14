@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game-server
+  namespace: novel-game
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: game-server
+  template:
+    metadata:
+      labels:
+        app: game-server
+    spec:
+      containers:
+        - name: game-server
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: storage
+              mountPath: /usr/share/nginx/html
+              subPath: built_games
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: novel-game-storage
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: game-server
+  namespace: novel-game
+spec:
+  selector:
+    app: game-server
+  ports:
+    - port: 8080
+      targetPort: 80
+  type: NodePort

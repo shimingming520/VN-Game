@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: engine-ingress
+  namespace: agent-platform
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "80m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  ingressClassName: nginx
+  tls:
+    # 复用泛域名证书 *.farmmx.com,需确认该 secret 已存在 namespace agent-platform
+    - secretName: farmmx-new-secret
+      hosts:
+        - chilang.farmmx.com
+  rules:
+    - host: chilang.farmmx.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: engine-frontend
+                port:
+                  number: 80

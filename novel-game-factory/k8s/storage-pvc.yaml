@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: novel-game-storage
+  namespace: novel-game
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      # 目标总容量：现有 50Gi 扩容 50Gi 后为 200Gi；这里填写最终容量，不是增量。
+      storage: 50Gi
+  # storageClassName: "" # 按需填写你的 StorageClass

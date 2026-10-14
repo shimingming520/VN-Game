@@ -1,0 +1,499 @@
+/**
+ * =============================================================================
+ * This is the file where all your styling should go in.
+ * Instead of modifying the styles found in the monogatari.css file or others,
+ * you should overwrite those styles in this file.
+ *
+ * The CSS selectors shown are not an extensive list but they are the most
+ * common you might want to change. To find what other elements are available,
+ * you can take a look at the monogatari.css file or use your browser's dev
+ * tools to inspect the elements.
+ * =============================================================================
+**/
+
+/**
+ * ===========================
+ * General Styling
+ * ===========================
+**/
+
+/* General Style */
+body {
+
+}
+
+/* Simple Button styles*/
+button {
+
+}
+
+/* Simple Button Style on Hover */
+button:hover {
+
+}
+
+/* General Styling for Menu Screens */
+[data-screen] {
+
+}
+
+/**
+ * ===========================
+ * Main Menu Styling
+ * ===========================
+**/
+
+/* Main Menu Styling */
+[data-screen="main"] {
+    background-image: url("../assets/images/beijing.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Main Menu Buttons Animation */
+@keyframes gentlePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+/* Main Menu Buttons Styling */
+[data-screen="main"] button {
+    width: 180px;
+    height: 60px;
+    margin: 12px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(106, 17, 203, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    animation: gentlePulse 3s ease-in-out infinite;
+}
+
+[data-screen="main"] button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(106, 17, 203, 0.5);
+    background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+}
+
+[data-screen="main"] button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(106, 17, 203, 0.3);
+}
+
+[data-screen="main"] button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+    z-index: -1;
+}
+
+[data-screen="main"] button:hover::before {
+    left: 100%;
+}
+
+/* Main Menu Container Layout */
+main-menu {
+    align-self: center !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: absolute !important;
+    bottom: 80px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+    height: auto !important;
+    flex-wrap: wrap !important;
+}
+
+settings-screen .voice-playback-rate-setting {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 0.6rem;
+}
+
+settings-screen .voice-playback-rate-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+settings-screen .voice-playback-rate-row input {
+    flex: 0 0 60%;
+    width: 60%;
+    min-width: 0;
+}
+
+settings-screen .voice-playback-rate-value {
+    position: absolute;
+    left: calc(80% + 0.5rem);
+    min-width: 3.5rem;
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Responsive adjustments for smaller screens */
+@media screen and (max-width: 768px) {
+    main-menu {
+        flex-direction: column !important;
+        bottom: 40px !important;
+    }
+
+    [data-screen="main"] button {
+        width: 160px;
+        height: 55px;
+        font-size: 18px;
+        margin: 8px;
+    }
+}
+
+/* ===========================
+ * 手机横屏适配
+ * =========================== */
+
+/* 主界面按钮：横屏下改用 vmin 单位，按屏幕高度缩放 */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+
+    /* 背景图锚定顶部，保留上方标题文字，从底部裁切 */
+    [data-screen="main"] {
+        background-position: center top;
+    }
+
+    main-menu {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        bottom: 4vmin !important;
+        gap: 1.5vmin !important;
+        justify-content: center !important;
+    }
+
+    [data-screen="main"] button {
+        width: 26vmin;
+        height: 10vmin;
+        font-size: 2.8vmin;
+        margin: 1vmin;
+        border-radius: 5vmin;
+        letter-spacing: 0.5px;
+    }
+
+    /* 面板通用：缩小整体尺寸，防止超出短屏 */
+    [data-screen]:not([data-screen="main"]):not([data-screen="game"]) {
+        font-size: 2.8vmin;
+    }
+
+    /* modal 容器高度限制 */
+    .modal__content {
+        max-height: 88vh !important;
+        overflow-y: auto !important;
+        padding: 1.5vmin !important;
+    }
+
+    /* settings 面板 */
+    settings-screen input,
+    settings-screen select {
+        margin: 1vmin !important;
+        font-size: 2.6vmin;
+    }
+
+    settings-screen h2,
+    settings-screen h3 {
+        font-size: 3vmin;
+        margin-bottom: 0.8vmin;
+    }
+
+    settings-screen [data-content="audio-settings"] > h3 {
+        margin-bottom: 0.5vmin;
+    }
+
+    settings-screen .voice-playback-rate-setting {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 0.8vmin;
+    }
+
+    settings-screen .voice-playback-rate-row {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    settings-screen .voice-playback-rate-row input {
+        flex: 0 0 60%;
+        width: 60%;
+        min-width: 0;
+    }
+
+    settings-screen .voice-playback-rate-value {
+        position: absolute;
+        left: calc(80% + 1vmin);
+        min-width: 4.5vmin;
+        text-align: left;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* help 面板 */
+    help-screen [data-content="help"] {
+        font-size: 2.6vmin;
+    }
+
+    help-screen [data-content="help"] h3 {
+        margin-bottom: 0.5vmin;
+        font-size: 3vmin;
+    }
+
+    help-screen [data-content="symbols"] [data-content="shortcut"] {
+        width: 3.5vmin;
+        height: 3.5vmin;
+        min-width: 3.5vmin;
+        font-size: 2.2vmin;
+        margin-right: 0.8vmin;
+    }
+
+    /* save/load 面板 */
+    [data-screen="save"] [data-component="save-slot"],
+    [data-screen="load"] [data-component="save-slot"] {
+        font-size: 2.6vmin;
+    }
+
+    [data-screen="save"] button,
+    [data-screen="load"] button {
+        font-size: 2.6vmin;
+        padding: 0.5vmin 1.5vmin;
+    }
+
+    /* dialog log 面板 */
+    dialog-log .modal__content {
+        width: 96% !important;
+        height: 90% !important;
+        max-height: 90% !important;
+    }
+
+    dialog-log .modal__content [data-content="log"] [data-spoke] {
+        font-size: 2.6vmin;
+        padding: 0.4vmin 0;
+    }
+
+    dialog-log .modal__content [data-content="log"] [data-spoke] span {
+        font-size: 2.4vmin;
+    }
+
+    dialog-log button {
+        width: 10vmin;
+        height: 3.5vmin;
+        font-size: 2.6vmin;
+    }
+}
+
+/**
+ * ===========================
+ * Save and Load Menus Styling
+ * ===========================
+**/
+
+/* Slots Style */
+[data-component="save-slot"] figure {
+
+}
+
+/* Slot's Image Style */
+[data-component="save-slot"] img {
+
+}
+
+/* Slots Title Style */
+[data-component="save-slot"] figcaption {
+
+}
+
+/* Slots Delete Button Style */
+[data-component="save-slot"] button {
+
+}
+
+/**
+ * ===========================
+ * Game Elements Styling
+ * ===========================
+**/
+
+/* Choice Buttons style */
+[data-component="choice-container"] button {
+
+}
+
+/* Choice Button Style on Hover */
+[data-component="choice-container"] button:hover {
+
+}
+
+/* Text Box styling */
+[data-component="text-box"] {
+
+}
+
+/* Character Name Style */
+[data-ui="who"] {
+
+}
+
+/* Style for Centered Text */
+[data-component="centered-dialog"] {
+
+}
+
+/* Character Images Styles */
+[data-screen="game"] [data-character] {
+
+}
+
+/* Other Images Styles */
+[data-screen="game"] [data-image] {
+
+}
+
+/**
+ * ===========================
+ * Quick Menu Styling
+ * ===========================
+**/
+
+/* These styles are applied to the Mobile version of the Quick Menu */
+
+/* Quick Menu Style */
+[data-component="quick-menu"] {
+
+}
+
+/* Quick Menu Buttons Style */
+[data-component="quick-menu"] span {
+
+}
+
+/* Quick Menu Buttons Style on Hover */
+[data-component="quick-menu"] span:hover {
+
+}
+
+/* Quick Menu Buttons Icon Style */
+[data-component="quick-menu"] > span > .fa {
+
+}
+
+/* Auto-play 按钮:模板默认是隐藏的,这里取消让它显示出来 */
+/* [data-action="auto-play"] {
+    display: none !important;
+} */
+
+/**
+ * ===========================
+ * Range Styling
+ * ===========================
+**/
+
+/* Use the background property to set a color for these */
+input[type=range]:focus::-webkit-slider-runnable-track {
+
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+
+}
+
+input[type=range]:focus::-ms-fill-upper {
+
+}
+
+input[type=range]:focus::-ms-fill-lower {
+
+}
+
+input[type=range]::-moz-range-track {
+
+}
+
+input[type=range]::-ms-fill-lower {
+
+}
+
+input[type=range]::-ms-fill-upper {
+
+}
+
+/** Medium Screens, Phablets (601px) **/
+@media screen and (min-width: 37.56255em) {
+	/* Styles for the desktop version of the Quick Menu */
+
+	/* Quick Menu Style */
+	[data-component="quick-menu"] {
+
+	}
+
+	/* Quick Menu Buttons Style */
+	[data-component="quick-menu"] span {
+
+	}
+
+	/* Quick Menu Buttons Style on Hover */
+	[data-component="quick-menu"] span:hover {
+
+	}
+}
+
+/** Medium Devices, Tablets (992px)**/
+@media screen and (min-width: 62em) {
+
+}
+
+/** HD Screen, Large Devices, Wide Screens, Desktop (1200px) **/
+@media screen and (min-width: 75em) {
+
+}
+
+/** Full HD Screen, Large Devices, Wide Screens, Large Desktops (1920px) **/
+@media screen and (min-width: 120em) {
+
+}
+
+/** Retina Screen , Large Devices, Wide Screens(2560px) **/
+@media screen and (min-width: 160em) {
+
+}
+
+/** 4k Screens, Large Devices, Wide Screens (3840px) **/
+@media screen and (min-width: 240em) {
+
+}
+
+/** 5k Screens, Large Devices, Wide Screens (5000px) **/
+@media screen and (min-width: 312.5em) {
+
+}
+
+/** 8k Screens, Large Devices, Wide Screens (8000px) **/
+@media screen and (min-width: 500em) {
+
+}

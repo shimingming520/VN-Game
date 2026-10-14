@@ -1,0 +1,210 @@
+/* 五步创作共用的视觉骨架。所有步骤只在自己的内容结构上做差异化，
+   背景、边框、按钮和表单统一从这里继承，避免页面之间像五套系统。 */
+
+.create-panel {
+  --create-surface: #1b1f2b;
+  --create-surface-soft: #202532;
+  --create-surface-muted: #151923;
+  --create-border: rgba(152, 165, 214, 0.2);
+  --create-border-strong: rgba(145, 162, 232, 0.38);
+  --create-text: #e9ecf5;
+  --create-text-soft: #a8afc2;
+  --create-text-muted: #7f879d;
+  --create-primary: #8294ed;
+  --create-primary-soft: rgba(107, 126, 224, 0.16);
+  position: relative;
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 26px 28px 24px;
+  border: 1px solid var(--create-border);
+  border-radius: 20px;
+  background:
+    radial-gradient(700px 240px at 8% -12%, rgba(112, 128, 217, 0.12), transparent 64%),
+    linear-gradient(145deg, rgba(31, 35, 48, 0.98), rgba(20, 23, 32, 0.98));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.035), 0 18px 46px rgba(0, 0, 0, 0.2);
+}
+
+.create-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(145, 158, 205, 0.12);
+}
+
+.create-panel__head h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--create-text);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.create-panel__head h3::before {
+  width: 4px;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #9aa8f6, #6f82df);
+  box-shadow: 0 0 16px rgba(119, 139, 232, 0.35);
+  content: '';
+}
+
+.create-panel__head-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.create-panel__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(145, 158, 205, 0.12);
+}
+
+.create-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.create-field label {
+  color: var(--create-text-soft);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.create-field__row {
+  display: flex;
+  gap: 8px;
+}
+
+.create-field__row .ant-input {
+  flex: 1;
+}
+
+.create-field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0 16px;
+  margin-top: 18px;
+}
+
+.create-empty {
+  margin: 8px 0;
+  padding: 54px 20px;
+  border: 1px dashed rgba(145, 158, 205, 0.2);
+  border-radius: 14px;
+  background: rgba(12, 15, 22, 0.22);
+  color: var(--create-text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.create-hint {
+  margin: 0 0 16px;
+  color: var(--create-text-soft);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.create-panel :deep(.ant-btn) {
+  min-height: 36px;
+  border-radius: 9px;
+  box-shadow: none;
+  font-weight: 500;
+}
+
+.create-panel :deep(.ant-btn-default) {
+  border-color: rgba(151, 164, 211, 0.24);
+  background: rgba(41, 46, 61, 0.82);
+  color: #cbd1e1;
+}
+
+.create-panel :deep(.ant-btn-default:not(:disabled):hover) {
+  border-color: rgba(142, 159, 232, 0.56);
+  background: rgba(65, 73, 103, 0.72);
+  color: #f0f2fa;
+}
+
+.create-panel :deep(.ant-btn-primary) {
+  border-color: transparent;
+  background: linear-gradient(135deg, #7188e5, #846fd6);
+  color: #f8f9ff;
+  box-shadow: 0 9px 20px rgba(76, 91, 170, 0.2);
+}
+
+.create-panel :deep(.ant-btn-primary:not(:disabled):hover) {
+  background: linear-gradient(135deg, #8095eb, #927ee0);
+}
+
+.create-panel :deep(.ant-btn:disabled) {
+  border-color: rgba(128, 137, 166, 0.12);
+  background: rgba(54, 58, 70, 0.44);
+  color: #6f7689;
+}
+
+.create-panel :deep(.ant-input),
+.create-panel :deep(.ant-input-affix-wrapper),
+.create-panel :deep(.ant-select-selector),
+.create-panel :deep(.ant-input-number),
+.create-panel :deep(.ant-segmented) {
+  border-color: rgba(151, 164, 211, 0.22) !important;
+  background: rgba(15, 18, 26, 0.58) !important;
+  color: var(--create-text) !important;
+  box-shadow: none !important;
+}
+
+.create-panel :deep(.ant-input),
+.create-panel :deep(.ant-input-affix-wrapper),
+.create-panel :deep(.ant-select-selector),
+.create-panel :deep(.ant-input-number) {
+  border-radius: 9px !important;
+}
+
+.create-panel :deep(.ant-select-selection-item),
+.create-panel :deep(.ant-input-number-input),
+.create-panel :deep(textarea.ant-input) {
+  color: var(--create-text) !important;
+}
+
+.create-panel :deep(.ant-input::placeholder),
+.create-panel :deep(textarea.ant-input::placeholder),
+.create-panel :deep(.ant-select-selection-placeholder) {
+  color: #6f778c !important;
+}
+
+.create-panel :deep(.ant-tabs-nav::before) {
+  border-color: rgba(145, 158, 205, 0.12);
+}
+
+.create-panel :deep(.ant-tabs-tab) {
+  border-color: rgba(145, 158, 205, 0.14) !important;
+  background: rgba(28, 32, 43, 0.7) !important;
+  color: var(--create-text-muted);
+}
+
+.create-panel :deep(.ant-tabs-tab-active) {
+  border-color: rgba(137, 154, 226, 0.3) !important;
+  background: var(--create-primary-soft) !important;
+}
+
+.create-panel :deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: #aebaf4 !important;
+}
+
+.create-panel :deep(.ant-alert-info) {
+  border-color: rgba(117, 144, 221, 0.24);
+  background: rgba(53, 72, 124, 0.18);
+}
+
+.create-panel :deep(.ant-alert-info .ant-alert-message),
+.create-panel :deep(.ant-alert-info .ant-alert-icon) {
+  color: #b8c6f4;
+}

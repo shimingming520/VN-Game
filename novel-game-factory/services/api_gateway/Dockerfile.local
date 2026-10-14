@@ -1,0 +1,19 @@
+FROM mirror.gcr.io/library/python:3.10-slim
+
+WORKDIR /app
+ENV TZ=Asia/Shanghai
+ENV PYTHONPATH=/app
+
+COPY services/api_gateway/requirements.txt /app/services/api_gateway/requirements.txt
+RUN pip install --no-cache-dir --timeout=1800 --retries=5 \
+    -r /app/services/api_gateway/requirements.txt
+
+COPY common/ /app/common/
+COPY services/__init__.py /app/services/__init__.py
+COPY services/story_planner/ /app/services/story_planner/
+COPY services/api_gateway/ /app/services/api_gateway/
+
+RUN python -c "from common.task_schema import ensure_novel_tasks_schema; import services.api_gateway.main"
+
+EXPOSE 8000
+CMD ["uvicorn", "services.api_gateway.main:app", "--host", "0.0.0.0", "--port", "8000"]

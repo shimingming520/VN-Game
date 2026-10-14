@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manifest-portal
+  namespace: novel-game
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: manifest-portal
+  template:
+    metadata:
+      labels:
+        app: manifest-portal
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: manifest-portal
+          image: harbor.farmmx.com/game/manifest-portal:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 520
+          envFrom:
+            - configMapRef:
+                name: novel-game-config-test
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: manifest-portal
+  namespace: novel-game
+spec:
+  selector:
+    app: manifest-portal
+  ports:
+    - port: 520
+      targetPort: 520
+  type: NodePort

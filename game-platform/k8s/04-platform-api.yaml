@@ -1,0 +1,62 @@
+# 平台 API(网关 + 注册中心),与 orchestrator-consumer 共用同一镜像
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: platform-api
+  namespace: agent-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: platform-api
+  template:
+    metadata:
+      labels:
+        app: platform-api
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: api
+          image: harbor.farmmx.com/agent-platform/agent-platform:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: platform-secrets
+            - configMapRef:
+                name: platform-config
+          env:
+            # API 同步端点会在线程池内并发占连接；总上限 15+2，心跳另留 2 条。
+            - name: PLATFORM_DB_POOL_SIZE
+              value: "15"
+            - name: PLATFORM_DB_MAX_OVERFLOW
+              value: "2"
+            - name: PLATFORM_HEARTBEAT_DB_POOL_SIZE
+              value: "2"
+            - name: PLATFORM_HEARTBEAT_DB_MAX_OVERFLOW
+              value: "0"
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 2
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 1Gi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: platform-api
+  namespace: agent-platform
+spec:
+  selector:
+    app: platform-api
+  ports:
+    - port: 8000
+      targetPort: 8000

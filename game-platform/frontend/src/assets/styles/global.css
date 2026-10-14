@@ -1,0 +1,522 @@
+/* 国风字体(开源可商用):思源宋体做标题,霞鹜文楷做点缀 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&display=swap');
+
+/* ══════════════════════════════════════════════════
+   龙族主题 · Agent 中台
+   深色底 + 云纹/龙鳞纹理 + 金/青双色强调 + 狐火动效
+   ══════════════════════════════════════════════════ */
+:root {
+  /* 底色层次 */
+  --dr-bg: #0a0d14;
+  --dr-bg-elev: #111621;
+  --dr-panel: #151b28;
+  --dr-panel-2: #1b2231;
+  --dr-border: #26304a;
+  --dr-border-soft: rgba(220, 180, 90, 0.14);
+
+  /* 双色强调:龙金 + 灵青 */
+  --dr-gold: #e8b64c;
+  --dr-gold-2: #f5d089;
+  --dr-cyan: #35d6d0;
+  --dr-cyan-2: #7ceee9;
+  --dr-magenta: #d4237a; /* 取自龙族图标 */
+
+  /* 文字 */
+  --dr-text: #eef1f8;
+  --dr-text-2: #a6b0c3;
+  --dr-text-3: #6b7689;
+
+  /* 渐变 */
+  --dr-grad-gold: linear-gradient(135deg, #f5d089 0%, #e8b64c 50%, #c8933a 100%);
+  --dr-grad-cyan: linear-gradient(135deg, #7ceee9 0%, #35d6d0 100%);
+  --dr-grad-panel: linear-gradient(160deg, #1b2231 0%, #131824 100%);
+  --dr-glow-gold: 0 0 0 1px rgba(232, 182, 76, 0.28), 0 8px 28px rgba(232, 182, 76, 0.1);
+  --dr-glow-cyan: 0 0 0 1px rgba(53, 214, 208, 0.3), 0 8px 28px rgba(53, 214, 208, 0.12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif;
+  font-size: 14px;
+  color: var(--dr-text);
+  background-color: var(--dr-bg);
+}
+
+/* 龙鳞纹理背景:两层放射渐变叠出鳞片错位感 */
+body {
+  background-image:
+    radial-gradient(circle at 50% 100%, rgba(232, 182, 76, 0.055) 0 14px, transparent 15px),
+    radial-gradient(circle at 50% 100%, rgba(53, 214, 208, 0.045) 0 14px, transparent 15px),
+    radial-gradient(1000px 600px at 80% -10%, rgba(212, 35, 122, 0.09), transparent 70%),
+    radial-gradient(900px 500px at 0% 100%, rgba(53, 214, 208, 0.07), transparent 70%);
+  background-size: 40px 26px, 40px 26px, 100% 100%, 100% 100%;
+  background-position: 0 0, 20px 13px, 0 0, 0 0;
+  background-attachment: fixed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  background: #2b3550;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3b4870;
+}
+
+/* ────────── Ant Design 深色适配(全局,业务页自动继承) ────────── */
+
+/* 卡片 / 面板:左上角一道金色斜切,避免"纯色方块"观感
+   注意:不要给 .ant-card 加 overflow:hidden,会裁掉宽表格的横向滚动区,
+   所以斜切用 clip-path 画在卡片内部,不依赖裁剪。 */
+.ant-card {
+  position: relative;
+  background: var(--dr-grad-panel);
+  border-color: var(--dr-border);
+  border-radius: 12px;
+}
+.ant-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 52px;
+  height: 52px;
+  border-top-left-radius: 12px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  background: linear-gradient(135deg, rgba(232, 182, 76, 0.2), transparent 72%);
+  pointer-events: none;
+}
+.ant-card-head {
+  border-bottom-color: var(--dr-border);
+  color: var(--dr-text);
+}
+.ant-card-head-title,
+.ant-card-meta-title {
+  color: var(--dr-text);
+}
+.ant-card-body {
+  color: var(--dr-text-2);
+}
+
+/* 表格 */
+.ant-table {
+  background: transparent;
+  color: var(--dr-text);
+}
+.ant-table-thead > tr > th {
+  background: linear-gradient(180deg, #1c2436, #161d2c) !important;
+  border-bottom: 1px solid rgba(232, 182, 76, 0.28) !important;
+  color: var(--dr-gold-2) !important;
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+/* 表头分隔竖线换成金色淡线 */
+.ant-table-thead > tr > th::before {
+  background: rgba(232, 182, 76, 0.2) !important;
+}
+/* 行悬浮时左侧亮一道青色标记 */
+.ant-table-tbody > tr > td:first-child {
+  position: relative;
+}
+.ant-table-tbody > tr:hover > td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  bottom: 15%;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: var(--dr-grad-cyan);
+  box-shadow: 0 0 8px rgba(53, 214, 208, 0.7);
+}
+.ant-table-tbody > tr > td {
+  border-bottom-color: rgba(38, 48, 74, 0.7) !important;
+  color: var(--dr-text-2);
+}
+.ant-table-tbody > tr:hover > td {
+  background: rgba(53, 214, 208, 0.06) !important;
+}
+.ant-table-placeholder,
+.ant-table-placeholder .ant-table-cell {
+  background: transparent !important;
+}
+
+/* 输入类 */
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-input-number,
+.ant-picker,
+.ant-select-selector {
+  background: var(--dr-panel-2) !important;
+  border-color: var(--dr-border) !important;
+  color: var(--dr-text) !important;
+}
+.ant-input::placeholder,
+.ant-select-selection-placeholder,
+.ant-picker-input > input::placeholder {
+  color: var(--dr-text-3) !important;
+}
+.ant-select-arrow,
+.ant-picker-suffix,
+.ant-input-suffix {
+  color: var(--dr-text-3);
+}
+.ant-input:focus,
+.ant-input-affix-wrapper-focused,
+.ant-picker-focused,
+.ant-select-focused .ant-select-selector {
+  border-color: var(--dr-gold) !important;
+  box-shadow: 0 0 0 2px rgba(232, 182, 76, 0.14) !important;
+}
+
+/* 下拉浮层 */
+.ant-select-dropdown,
+.ant-picker-dropdown .ant-picker-panel-container,
+.ant-dropdown-menu {
+  background: var(--dr-panel) !important;
+  border: 1px solid var(--dr-border);
+}
+.ant-select-item {
+  color: var(--dr-text-2);
+}
+.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background: rgba(53, 214, 208, 0.1) !important;
+}
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background: rgba(232, 182, 76, 0.14) !important;
+  color: var(--dr-gold-2) !important;
+}
+
+/* 按钮:主按钮走龙金渐变 */
+.ant-btn-primary {
+  border: none;
+  background: var(--dr-grad-gold);
+  color: #241a06;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(232, 182, 76, 0.22);
+}
+.ant-btn-primary:not(:disabled):hover {
+  filter: brightness(1.06);
+  color: #241a06;
+}
+.ant-btn-default {
+  background: transparent;
+  border-color: var(--dr-border);
+  color: var(--dr-text);
+}
+.ant-btn-default:not(:disabled):hover {
+  border-color: var(--dr-cyan);
+  color: var(--dr-cyan-2);
+}
+.ant-btn-link {
+  color: var(--dr-cyan);
+}
+.ant-btn-link:not(:disabled):hover {
+  color: var(--dr-cyan-2);
+}
+
+/* 弹窗 */
+.ant-modal-content,
+.ant-modal-header {
+  background: var(--dr-panel) !important;
+}
+.ant-modal-title,
+.ant-modal-close-x {
+  color: var(--dr-text) !important;
+}
+.ant-modal-header {
+  border-bottom: 1px solid var(--dr-border);
+}
+.ant-modal-footer {
+  border-top: 1px solid var(--dr-border);
+}
+
+/* 标签 / 分页 / 空态 / 描述 */
+.ant-tag {
+  border-color: var(--dr-border);
+  border-radius: 999px;
+  padding: 0 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.ant-pagination-item,
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link {
+  background: var(--dr-panel-2) !important;
+  border-color: var(--dr-border) !important;
+  color: var(--dr-text-2) !important;
+}
+.ant-pagination-item-active {
+  border-color: var(--dr-gold) !important;
+}
+.ant-pagination-item-active a {
+  color: var(--dr-gold-2) !important;
+}
+.ant-pagination-total-text,
+.ant-empty-description,
+.ant-form-item-label > label,
+.ant-descriptions-item-label {
+  color: var(--dr-text-2) !important;
+}
+.ant-divider {
+  border-color: var(--dr-border);
+}
+.ant-spin-dot-item {
+  background-color: var(--dr-gold);
+}
+
+/* Tabs */
+.ant-tabs {
+  color: var(--dr-text-2);
+}
+.ant-tabs-tab {
+  color: var(--dr-text-2) !important;
+}
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--dr-gold-2) !important;
+}
+.ant-tabs-ink-bar {
+  background: var(--dr-grad-gold) !important;
+}
+.ant-tabs-top > .ant-tabs-nav::before {
+  border-bottom-color: var(--dr-border);
+}
+
+/* 复选/开关 */
+.ant-checkbox-inner {
+  background: var(--dr-panel-2);
+  border-color: var(--dr-border);
+}
+.ant-checkbox-checked .ant-checkbox-inner {
+  background: var(--dr-gold);
+  border-color: var(--dr-gold);
+}
+.ant-switch-checked {
+  background: var(--dr-cyan) !important;
+}
+
+/* 通用标题文字 */
+h1, h2, h3, h4, h5 {
+  color: var(--dr-text);
+}
+
+/* 统计数值 / 结果页 / 上传 / 气泡卡片 */
+.ant-statistic-title {
+  color: var(--dr-text-3) !important;
+}
+.ant-statistic-content {
+  color: var(--dr-gold-2) !important;
+}
+.ant-result-title,
+.ant-result-subtitle {
+  color: var(--dr-text) !important;
+}
+.ant-result-subtitle {
+  color: var(--dr-text-2) !important;
+}
+.ant-popover-inner {
+  background: var(--dr-panel) !important;
+  border: 1px solid var(--dr-border);
+}
+.ant-popover-inner-content,
+.ant-popconfirm-message-text {
+  color: var(--dr-text-2) !important;
+}
+.ant-popover-arrow::before {
+  background: var(--dr-panel) !important;
+}
+.ant-tooltip-inner {
+  background: #0f1420 !important;
+  border: 1px solid var(--dr-border);
+  color: var(--dr-text) !important;
+}
+.ant-tooltip-arrow::before {
+  background: #0f1420 !important;
+}
+.ant-upload.ant-upload-select {
+  background: transparent !important;
+  border-color: var(--dr-border) !important;
+}
+.ant-image-mask {
+  background: rgba(8, 11, 18, 0.65);
+}
+
+/* ────────── 页头(业务页统一:金色主标题 + 灰色说明 + 竖向灵纹) ────────── */
+.dr-page-head {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-left: 14px;
+}
+.dr-page-head::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--dr-gold) 0%, var(--dr-magenta) 55%, var(--dr-cyan) 100%);
+  box-shadow: 0 0 10px rgba(232, 182, 76, 0.5);
+}
+.dr-page-title {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  background: var(--dr-grad-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+/* 标题后缀一枚小狐火点,弱化"纯文字标题"的单薄感 */
+.dr-page-title::after {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 9px;
+  vertical-align: middle;
+  border-radius: 50%;
+  background: var(--dr-cyan);
+  box-shadow: 0 0 8px 2px rgba(53, 214, 208, 0.6);
+}
+.dr-page-desc {
+  margin-top: 4px;
+  color: var(--dr-text-3);
+  font-size: 12.5px;
+}
+/* 分组小标题(日期/分类等):左侧青色细条 */
+.dr-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-left: 9px;
+  border-left: 3px solid var(--dr-cyan);
+  color: var(--dr-cyan-2);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* ────────── 国风标题字 ────────── */
+.dr-title {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+.dr-serif {
+  font-family: 'LXGW WenKai TC', 'Noto Serif SC', serif;
+}
+
+/* ────────── 中式回字云纹纹理(容器加 .dr-cloud 即带底纹) ────────── */
+.dr-cloud {
+  position: relative;
+}
+.dr-cloud::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M10 10 h20 v20 h-10 v-10 h5 v5 h-15 v-25 h30 v30 h-40' fill='none' stroke='%23e8b64c' stroke-width='1.5' stroke-opacity='0.18'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* ────────── 回字纹角标(容器四角,金线勾边) ────────── */
+.dr-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  border-color: rgba(232, 182, 76, 0.45);
+  border-style: solid;
+  border-width: 0;
+}
+.dr-corner--tl {
+  top: 10px;
+  left: 10px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-top-left-radius: 6px;
+}
+.dr-corner--tr {
+  top: 10px;
+  right: 10px;
+  border-top-width: 2px;
+  border-right-width: 2px;
+  border-top-right-radius: 6px;
+  border-color: rgba(53, 214, 208, 0.42);
+}
+.dr-corner--bl {
+  bottom: 10px;
+  left: 10px;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+  border-bottom-left-radius: 6px;
+  border-color: rgba(53, 214, 208, 0.42);
+}
+.dr-corner--br {
+  bottom: 10px;
+  right: 10px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+  border-bottom-right-radius: 6px;
+}
+
+/* ────────── 狐火粒子(青色灵火,飘动) ────────── */
+.fox-fire {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #5eead4 20%, #0d9488 60%, transparent 80%);
+  filter: blur(2px);
+  box-shadow: 0 0 15px 5px rgba(45, 212, 191, 0.4);
+  animation: floatFire 3s infinite ease-in-out alternate;
+  pointer-events: none;
+}
+/* 金色变体:龙焰 */
+.fox-fire--gold {
+  background: radial-gradient(circle, #f5d089 20%, #c8933a 60%, transparent 80%);
+  box-shadow: 0 0 15px 5px rgba(232, 182, 76, 0.35);
+}
+@keyframes floatFire {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-30px) scale(1.2);
+    opacity: 1;
+  }
+}

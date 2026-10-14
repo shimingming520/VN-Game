@@ -1,0 +1,44 @@
+/* demo 原生样式(chilang.css)为基底,此处仅补 ant-design-vue 暗色适配,
+   不要在此重定义 body/:root 等,避免覆盖 demo 视觉。 */
+
+#app {
+  min-height: 100vh;
+}
+
+/* ant-design-vue 组件在暗色底上的最小适配 */
+.ant-empty-description {
+  color: #747988 !important;
+}
+
+.ant-spin-dot-item {
+  background-color: #8e9fff !important;
+}
+
+/* 侧栏 X / Discord 悬停提示:暂时关闭,保留样式待恢复
+   (恢复时同步取消 AppSider.vue 里两个 <span> 的注释)
+.social-link span {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  display: block;
+  padding: 7px 10px;
+  border: 1px solid #14161ff5;
+  border-radius: 8px;
+  background: #14161ff5;
+  color: #e5e8f7;
+  box-shadow: 0 10px 24px #00000047;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-5px, -50%);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+  z-index: 3;
+}
+
+.social-link:hover span {
+  opacity: 1;
+  transform: translateY(-50%);
+}
+*/

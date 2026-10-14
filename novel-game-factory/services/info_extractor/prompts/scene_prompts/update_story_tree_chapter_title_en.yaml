@@ -1,0 +1,26 @@
+metadata:
+  service: info_extractor
+  name: update_story_tree_chapter_title_en
+  version: v1.0
+  language: en-US
+  description: "生成章节标题提示词（英文）- 占位符: {chapter_content}"
+  tags:
+    - update-story-tree
+    - chapter-title
+    - en
+
+content: |
+  Based on the following chapter content, generate a concise and appealing chapter title:
+  
+  Chapter content:
+  {chapter_content}
+  
+  Requirements:
+  - Title should reflect the main content or key event of this chapter
+  - Return concise chapter theme, do not use formats like "Chapter X:"
+  - Keep the title concise and clear, within 10-20 words
+  - Avoid using special punctuation marks other than colons
+  - Do not use quotation marks
+  - Be attractive but not overly exaggerated
+  - Match the specific content of this chapter
+  

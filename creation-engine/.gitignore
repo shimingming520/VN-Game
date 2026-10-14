@@ -1,0 +1,6 @@
+# 真实密钥不进 git,只提交 01-secret.example.yaml 模板
+k8s/01-secret.yaml
+__pycache__/
+*.pyc
+.env
+*.db

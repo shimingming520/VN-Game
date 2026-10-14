@@ -1,0 +1,41 @@
+# Orchestrator 回调消费者:同镜像换启动命令,无 Service(纯 MQ 消费,不对外)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orchestrator-consumer
+  namespace: agent-platform
+spec:
+  replicas: 1   # 骨架期单副本;多副本前需先做分布式锁/行级锁(见 README 待办)
+  selector:
+    matchLabels:
+      app: orchestrator-consumer
+  template:
+    metadata:
+      labels:
+        app: orchestrator-consumer
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: consumer
+          image: harbor.farmmx.com/agent-platform/agent-platform:latest
+          imagePullPolicy: Always
+          command: ["python", "-m", "orchestrator.consumer"]
+          envFrom:
+            - secretRef:
+                name: platform-secrets
+            - configMapRef:
+                name: platform-config
+          env:
+            # 单 consumer 的主池最多 3+1；它不处理 adapter 心跳，备用池封顶 1。
+            - name: PLATFORM_DB_POOL_SIZE
+              value: "3"
+            - name: PLATFORM_DB_MAX_OVERFLOW
+              value: "1"
+            - name: PLATFORM_HEARTBEAT_DB_POOL_SIZE
+              value: "1"
+            - name: PLATFORM_HEARTBEAT_DB_MAX_OVERFLOW
+              value: "0"
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 1Gi }

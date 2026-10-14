@@ -1,0 +1,55 @@
+# 排除构建的游戏和输出文件
+storage/built_games/
+storage/built_games.zip
+storage/outputs/
+storage/raw_novels/
+storage/*.zip
+storage/*.tar.gz
+storage/models/
+
+# char_designer 已改为由 GPT Image 2 原生输出 RGBA；保留在仓库中的旧
+# BiRefNet/ViTMatte 权重仅供回滚，不进入任何新服务镜像。
+services/char_designer/models/koutu/
+
+# 排除各服务的虚拟环境（体积巨大，不应进任何镜像）
+**/.venv/
+**/venv/
+# 注意：不要用 **/*.safetensors / **/*.bin 等通配排除模型权重，
+# 会误伤业务自带模型（如 sound_arranger/sentence-transformers/all-MiniLM-L6-v2）。
+# 真正的大文件是 .venv 和 storage/models，已在上方/下方显式排除。
+
+# 排除日志文件
+services/*/log/
+*.log
+
+# 排除Python缓存
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.Python
+
+# 排除IDE配置
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 排除Git
+.git/
+.gitignore
+
+# 排除环境变量和配置
+.env
+.env.local
+*.env
+
+# 排除临时文件
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# 本地开发与续跑工具通过 bind mount 使用，不进入任何构建上下文
+.local_dev/

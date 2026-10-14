@@ -1,0 +1,28 @@
+metadata:
+  service: scene_painter
+  name: scene_extractor_raw_user
+  version: v1.0
+  language: zh-CN
+  description: "场景提取器用户提示词模板 - 含 {node_title} / {node_summary} / {chunk_index} / {chunk_total} / {prev_scenes} / {novel_text} 占位符"
+  tags:
+    - scene-extraction
+    - user-prompt
+
+content: |
+  【当前节点标题】: {node_title}
+
+  【当前节点剧情梗概】:
+  {node_summary}
+
+  【已出现过的场景名称（仅供命名风格参考，不要求复用，也不要因此省略本片段的新信息）】:
+  {prev_scenes}
+
+  【正文片段进度】: 第 {chunk_index} / {chunk_total} 段
+
+  【小说正文片段（每行以「行号│」开头，行号是该行在原文中的真实行号）】:
+  {novel_text}
+
+  请根据以上正文片段，按出现顺序提取其中发生的独立物理场景，输出 JSON。
+  忠于本片段的实际内容：写出正文真实出现的地点与陈设，detail 以原文为骨、可克制补全，但不要编造。即使某地点之前已出现过，也请照本片段实际内容独立提取，不要省略。
+  每个场景都要输出 shot（这张空镜底图主要画什么、什么视角、大空间在画面里占多少，中景~远景、优先平视、无人物）与 detail（空间里客观存在的物体结构陈设，供后续归并分层），两者分工不要混同。
+  **每个场景都必须给出 start_line 与 end_line**：即该场景对应的正文，从哪一行（行号│前的数字）开始、到哪一行结束。行号请直接取自正文每行开头的数字，务必精确到该场景真正覆盖的行，不要直接套用整段的首尾行号。

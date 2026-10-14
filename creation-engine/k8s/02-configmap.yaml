@@ -1,0 +1,25 @@
+# 非敏感配置
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: engine-config
+  namespace: agent-platform
+data:
+  TZ: "Asia/Shanghai"
+  # CMS OAuth2 对接:创作引擎独立应用凭证,MOCK 置 0 走真实 CMS
+  MAINSITE_CLIENT_ID: "adm_PeKhWRz3DtsnpFD6PuBfjGxs"
+  MAINSITE_MOCK: "0"
+  # OAuth2 回调地址(需 CMS 侧 redirect_uris 白名单新增该域名)
+  OAUTH_REDIRECT_URI: "https://chilang.farmmx.com/auth/callback"
+  JWT_EXPIRE_HOURS: "168"
+  CMS_API_BASE: "https://testapi.farmmx.com/admin"
+  # 素材 OSS(与中台/novel-game-factory 共用同一 bucket)
+  CDN_BASE_URL: ""
+  OSS_DISABLED: "1"
+  # 上游服务地址,走集群内部 DNS(跨 namespace 用全限定名,不经过 ingress)
+  # 中台:agent-platform namespace 的 platform-api service
+  PLATFORM_API_URL: "http://platform-api.agent-platform.svc.cluster.local:8000"
+  # 创作服务:novel-game namespace 的 api-gateway service(容器端口 8000,非对外的 8100)
+  NOVEL_API_URL: "http://api-gateway.novel-game.svc.cluster.local:8000"
+  # 游戏访问入口(对外域名,拼作品预览链接用,不是集群内部地址)
+  GAME_BASE_URL: "https://testgame.farmmx.com"

@@ -1,0 +1,54 @@
+# 创作引擎后端 API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: engine-api
+  namespace: agent-platform
+spec:
+  # OAuth2 state 存在进程内存(oauth_store.py),多副本会导致登录回调打到别的 pod 报
+  # "state 无效"。故 API 保持单副本;需要多副本时须先把 state 改存共享存储(DB/Redis)。
+  replicas: 1
+  selector:
+    matchLabels:
+      app: engine-api
+  template:
+    metadata:
+      labels:
+        app: engine-api
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: api
+          image: harbor.farmmx.com/agent-platform/creation-engine-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: engine-secrets
+            - configMapRef:
+                name: engine-config
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 7
+            failureThreshold: 3
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 1Gi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: engine-api
+  namespace: agent-platform
+spec:
+  selector:
+    app: engine-api
+  ports:
+    - port: 8000
+      targetPort: 8000

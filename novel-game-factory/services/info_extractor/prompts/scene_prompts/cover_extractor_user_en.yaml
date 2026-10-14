@@ -1,0 +1,13 @@
+metadata:
+  service: info_extractor
+  name: cover_extractor_user
+  version: v1.0
+  language: zh-CN
+  description: "封面提取器用户提示词 - 传入章节内容"
+  tags:
+    - cover-extraction
+    - visual-elements
+
+content: |
+  章节内容：
+  {{ chapter_content }}

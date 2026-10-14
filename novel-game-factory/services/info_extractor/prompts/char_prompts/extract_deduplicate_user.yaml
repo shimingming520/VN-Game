@@ -1,0 +1,99 @@
+metadata:
+  service: char_designer
+  name: extract_deduplicate_user
+  version: v1.0
+  language: en-US
+  description: "角色合并去重 user prompt 模板"
+  tags:
+    - char-deduplication
+    - english
+
+content: |
+  Character Name: {character_name}
+  
+  The following are {count} description versions of this character, please merge into a more complete, deduplicated version:
+  
+  {data_str}
+  
+  Please strictly follow merge, inherit, and distinguish logic to perform the following operations:
+  
+  1. **Analyze All Versions**: Find duplicate, similar, or complementary information
+     - **Entity Merging**: If you find "The stranger" and "Lestat" data mixed together, please merge them completely, using the real name as `name`. **The `name` field must follow this priority: real personal name > specific-name-qualified kinship/title form > bare kinship/title/designation.** For example, use **"陆辞" > "陆清然的哥哥" > "哥"**. If a character appears as both "唐三" and "唐宗主" across versions, use "唐三" as `name` and move "唐宗主" to `other_names`. If no real name exists in any version but a specific qualified form such as "陆清然的哥哥" or "傅总" exists, use that as `name`. Only use a bare kinship/title/designation as `name` if no more specific form exists in any version.
+     - **Evidence Preservation**: Merge character-level `info` into a concise factual summary and preserve the ordered union of all exact `refs` strings. Variants and combinations must also retain their own `info` and supporting `refs`.
+
+  2. **Merge Personality Variants**:
+     - Output one flat `traits` array; do not output main_traits, secondary_traits, flaws, or virtues
+     - Keep approximately 4-8 durable traits ordered by importance, with positive and negative traits in the same array
+     - Merge synonyms and overlapping descriptions instead of retaining every wording
+     - Default to one personality variant; merge differences caused by context, temporary attitude, or scene emotion
+     - Create another variant only for a long-term, fundamental, sustained personality transformation supported across the narrative
+     - Exclude temporary emotions such as anger, sadness, surprise, fear, disgust, happiness, nervousness, and shock
+     - Keep `info` to one factual sentence; it is metadata and is not used in image prompts
+  3. **Merge Body Variants**:
+     - **Split by OUTWARD LOOK, not real age (Absolute)**: What keeps two body variants separate is a difference in the PHYSICAL BODY / outward look — a source-backed change in `apparent_age` (the age the character LOOKS) or visible growth/aging — reflected in the variant `info`. A difference in the REAL `age` alone, with the same outward look, must NOT keep variants separate: merge them and record the real-age span in `info` (this is the ageless-being case: real age rises, look unchanged). An inferred `age_category`, or a merely guessed `apparent_age`, must never by itself block merging.
+     - **Height Guess Flag (`height_ai_guess`)**: Each whole_body variant carries a boolean `height_ai_guess`. `true` = height was guessed by the AI (inferred from generic gender/race/age/body-type, text says nothing about stature); `false` = height is backed by the text — a stated measurement, an explicit growth/shrink event, OR any height-related descriptor or comparison even without a number (e.g., "tall", "petite", "身材高挑", "比他高半个头", "只到他肩膀"). A `height_ai_guess:true` height is not evidence of a distinct body state: it never blocks merging and may be overwritten by a compatible variant's value. Only a genuine `false`-vs-`false` height difference can justify separate variants. When merging, prefer the value whose `height_ai_guess` is `false` (text-backed).
+     - **Underspecified Age Merging**: If a variant's age is not described (its `age` field is empty AND its `info` indicates the age/appearance was not described, so its `age_category` is only a guess), treat it as age-underspecified. Do NOT keep it as a separate variant on the basis of that guessed age or a guessed (`height_ai_guess:true`) height. Merge it into a compatible concrete variant of the same character (compatible gender, race, and role) and inherit the concrete `age`, `apparent_age`, `age_category`, `height`, `height_ai_guess`, and appearance from the evidenced variant.
+       * **Example**: variant A has `age=""`, `age_category="young adult"`, `height="160"`, `height_ai_guess=true`, `info` "具体年龄和外貌未被描写" (age and height are only guessed); variant B has `age="14"` ("明确自称十四岁"), `age_category="adolescent"`, `height="155"`, `height_ai_guess=true`, with a concrete facial description. Merge into ONE variant, keeping the evidenced `age="14"`, `age_category="adolescent"`, and B's appearance details; height 160 (built on the wrong "young adult" guess) is dropped in favor of 155.
+     - **Split only on a genuine outward-look change**: keep variants separate for a source-backed change in `apparent_age` or visible growth/aging. A time skip that raises the REAL `age` without changing the look (ageless beings) is NOT such a change; merge those. But for a still-growing minor (childhood/adolescence), even one year of growth changes the body, so year-scale growth steps ARE a genuine outward change and stay separate, with `apparent_age` tracking the real age.
+     - **Minor Injury Merging Rule (Absolute)**: Minor, non-visible, or inconspicuous injuries must NOT create separate body variants. Examples to merge: small hand scratches, abrasions, burns on back or covered areas, minor bruises, slight bleeding, embedded sand/gravel. Create a separate variant when the injury or condition visually significantly affects overall appearance: severe/highly visible injuries (major wounds, extensive bruising, visible bandaging on exposed areas), obviously injured state (limping, weakened posture), sickly/weak appearance (pale/feverish, visibly unwell, bedridden, "病怏怏"), or major visible changes to body structure/capability. For minor injuries, merge into the base body state and optionally note the injury context briefly in `info` if plot-relevant.
+     - Merge similar body descriptions; keep separate only for a genuinely different outward look (source-backed `apparent_age` change or visible growth/aging), a genuine `height_ai_guess:false`-vs-`false` stature difference, or severe visible injuries per the rules above. A rising real `age` with an unchanged look is not a reason to keep separate.
+     - For features not mentioned, inherit description from previous variant
+     - Try to merge variants that share the same outward look (same `apparent_age` / appearance), even if their real `age` differs
+     - **Facial Description Processing**: facial_description field should only include inherent facial feature descriptions of the character, such as "wearing glasses", "prominent pointed ears", "scar on left cheek", etc. The following types of descriptions should be considered invalid and removed (set to empty string):
+       * **Abstract, literary metaphorical descriptions**: such as "eyes settled with a calm light, like a deep autumn lake, clear and powerful"
+       * **Expression-related temporary facial state descriptions**: such as "red and swollen eyes", "dark circles under eyes", "tear stains not yet dry", "trembling lips", etc., crying, nervous, or other temporary expression states
+       * **Features invisible to the audience**: such as "mole behind ear" and other features that the audience cannot directly observe
+       * **Non-inherent features**: Any non-inherent features of the character, temporary facial state descriptions
+       Only retain inherent, visible, stable facial feature descriptions of the character.
+     - **Apply Body Description Merging Logic**: Refer to detailed merging rules in system prompt, including:
+       * **Duplicate Core Phrase Merging**: Merge descriptions containing the same core phrases, retain more complete version
+       * **Similar Body Part Description Merging**: Merge descriptions of similar features (such as light effects, scars) of the same body part
+       * **Detail Supplement Merging**: Merge complementary detail descriptions into comprehensive description
+       * **Same Theme Merging**: Merge descriptions involving the same theme (such as soul ring effects, limb strength)
+     - **Context Check**: Before merging, check the refs of the variants and corresponding valid_status_combinations to ensure descriptions represent the same or similar character states. If they represent genuinely different plot states, retain them as independent variants.
+  4. **Merge Clothing Variants**:
+     - Treat a variant as a reusable garment design, not as a scene, action, carried item, or temporary condition
+     - Merge compatible descriptions of the same garment type, cut, color family, material, and layers, even when their clothing_style labels say daily, banquet, battle, pursuit, action, work, travel, formal occasion, or night
+     - Scene/purpose labels alone do not prove a costume change; a shorter or vaguer compatible description inherits the richer garment details
+     - Mud, dust, sweat, blood, wetness, loosened fastening, an open collar, rolled sleeves, or temporarily wearing the same outer robe loosely do not create another clothing variant
+     - Occupation wording changes do not create another variant unless the character actually changes into a different uniform or garment design
+     - Weapon/tool differences do not create another clothing variant, including drawing, storing, upgrading, replacing, or enchanting a weapon; merge their ordered unique union into `weapons`
+     - Create a new variant only for a materially different visible garment design, such as wedding clothes, armor, a real uniform change, a disguise, actual sleepwear/underwear replacing the outer robe, or conflicting garment color/cut/material/layers
+     - When garment descriptions are compatible and no explicit change of clothes is stated, prefer merging
+     - **Especially Important**: Similar items in clothing_variants should be merged (e.g., "simple and tidy" and "simple but tidy clothes" are similar)
+     - Keep `accessories` for fixed, reusable outfit accessories only
+     - Keep temporary plot items in `tmp_accessories`; both fields must be flat arrays of concrete item strings
+     - Differences only in `tmp_accessories` do not create separate clothing variants and do not block merging
+     - When merging clothing variants, take the ordered unique union of `tmp_accessories`; never move these items into `accessories` or outfit_discription
+     - `tmp_accessories` is ignored by reusable base character portrait generation and must not be treated as present throughout every source range
+     - **Similar Variant Merging Example (Non-conflicting Merging)**: When multiple clothing variants have the same core features (such as same clothing style, similar clothing type), with only minor compatible details, merge them into one variant. Fixed accessory details may be combined when compatible; temporary plot-item differences must go into the merged `tmp_accessories` list.
+     - **Same-outfit example**: compatible moon-white/white wide-sleeved robes called combat clothes, banquet robes, daily robes, a loosely worn night outer robe, and action clothes should become one variant. Dirt/sweat, pouches/talismans/handkerchiefs/cleaning cloths, and different weapons do not split it; a red wedding robe does.
+  5. **Generate Valid Status Combinations**:
+     - Based on merged variants, generate reasonable valid_status_combinations
+     - Each original time point should correspond to a valid combination
+     - **Important**: If variant IDs change due to merging, need to recalculate status combinations. For example, if clothing_id:2 is deleted, then the original "OldJack-1-1-2" should become "OldJack-1-1-1". Each combination must be an object: {"combination": "CharacterName-A-B-C", "description": "", "info": "applicable narrative situation", "refs": ["node_id_start_end"], "is_active": false}
+  6. **Maintain other_names field**
+  
+  Return Format Requirements:
+  Return a complete JSON object, including the following fields:
+  - name: Character name
+  - info: Merged factual identity/role/context summary
+  - refs: Ordered union of all source refs
+  - other_names: List of other names
+  - personality_variants: Merged personality variant array
+    Each personality variant must use one flat `traits` array (approximately 4-8 durable traits), plus `personality_id`, `info`, and `refs`. Do not output main_traits, secondary_traits, flaws, or virtues.
+  - whole_body_variants: Merged body variant array
+  - clothing_variants: Merged clothing variant array
+    Each clothing variant must contain `accessories` and `tmp_accessories` as flat string arrays.
+  - valid_status_combinations: Valid status combinations generated based on merged variants
+  
+  Important Notes:
+  1. Each object in variant arrays must include its corresponding *_id field plus `info` and `refs`; each status combination must also retain `info` and `refs`
+  2. IDs start from 1 and are numbered consecutively
+  3. Reasonably reduce number of variants, but do not lose important differences
+  4. Preserve the non-empty integer-centimeter `height` and the boolean `height_ai_guess` flag of every whole_body variant; merging must not drop or blank these fields
+  5. If another field is empty in original data, it can be ignored or supplemented during merging
+  6. **Language Preservation**: name and other_names fields must preserve original language, translation or transliteration is prohibited
+  7. Strictly follow merge, inherit, and distinguish logic: merge similar, inherit unmentioned, distinguish core changes
+  
+  Please return JSON directly, do not include other text.

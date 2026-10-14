@@ -1,0 +1,143 @@
+services:
+  creation_frontend:
+    build:
+      context: ../creation-engine-frontend
+      dockerfile: Dockerfile.local
+    ports:
+      - "5174:80"
+    depends_on:
+      - api_gateway
+    networks:
+      - novel-game-network
+
+  api_gateway:
+    build:
+      context: .
+      dockerfile: services/api_gateway/Dockerfile.local
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: "15432"
+      DB_NAME: agent_platform
+      DB_USER: platform
+      DB_PASSWORD: platform
+      LOCAL_PIPELINE_MODE: "1"
+      OSS_DISABLED: "1"
+      STORAGE_PATH: /storage
+      MINIMAX_API_KEY: "${MINIMAX_API_KEY}"
+      MINIMAX_T2A_URL: "${MINIMAX_T2A_URL:-https://api.minimaxi.com/v1/t2a_v2}"
+      AUDIO_BASE_URL: "${AUDIO_BASE_URL}"
+      DASHSCOPE_API_KEY: "${DASHSCOPE_API_KEY}"
+      ELEVENLABS_RELAY_API_KEY: "${ELEVENLABS_RELAY_API_KEY}"
+    volumes:
+      - type: bind
+        source: F:\PyCharm_Project\VNStory\storage
+        target: /storage
+  game_server:
+    ports: !override
+      - "8088:80"
+    volumes: !override
+      - type: bind
+        source: F:\PyCharm_Project\VNStory\storage\built_games
+        target: /usr/share/nginx/html
+        read_only: true
+      - type: bind
+        source: F:\PyCharm_Project\VNStory\storage\built_games\nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+  story_planner:
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: "15432"
+      DB_NAME: agent_platform
+      DB_USER: platform
+      DB_PASSWORD: platform
+      STORY_PLANNER_LLM_API_KEY: "${STORY_PLANNER_LLM_API_KEY:-${GPT_IMAGE_API_KEY}}"
+      STORY_PLANNER_LLM_BASE_URL: "${STORY_PLANNER_LLM_BASE_URL:-https://ai.farmmx.com/v1}"
+      OSS_DISABLED: "1"
+      STORAGE_PATH: /storage
+    volumes:
+      - type: bind
+        source: F:\PyCharm_Project\VNStory\storage
+        target: /storage
+  info_extractor:
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: "15432"
+      DB_NAME: agent_platform
+      DB_USER: platform
+      DB_PASSWORD: platform
+      STORY_PLANNER_LLM_API_KEY: "${STORY_PLANNER_LLM_API_KEY:-${GPT_IMAGE_API_KEY}}"
+      STORY_PLANNER_LLM_BASE_URL: "${STORY_PLANNER_LLM_BASE_URL:-https://ai.farmmx.com/v1}"
+      PLOT_API_KEY: "${PLOT_API_KEY:-${GPT_IMAGE_API_KEY}}"
+      PLOT_BASE_URL: "${PLOT_BASE_URL:-https://ai.farmmx.com/v1}"
+      PLOT_MODEL: "${PLOT_MODEL:-${LLM_MODEL:-gpt-5.6-sol}}"
+      OSS_DISABLED: "1"
+      STORAGE_PATH: /storage
+    volumes:
+      - type: bind
+        source: F:\PyCharm_Project\VNStory\storage
+        target: /storage
+  char_designer:
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: "15432"
+      DB_NAME: agent_platform
+      DB_USER: platform
+      DB_PASSWORD: platform
+      STORY_PLANNER_LLM_API_KEY: "${STORY_PLANNER_LLM_API_KEY:-${GPT_IMAGE_API_KEY}}"
+      STORY_PLANNER_LLM_BASE_URL: "${STORY_PLANNER_LLM_BASE_URL:-https://ai.farmmx.com/v1}"
+      GPT_IMAGE_API_KEY: "${GPT_IMAGE_API_KEY}"
+      GPT_IMAGE_BASE_URL: "${GPT_IMAGE_BASE_URL:-https://ai.farmmx.com}"
+      OSS_DISABLED: "1"
+      STORAGE_PATH: /storage
+    volumes:
+      - type: bind
+        source: F:\PyCharm_Project\VNStory\storage
+        target: /storage
+  scene_painter:
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: "15432"
+      DB_NAME: agent_platform
+      DB_USER: platform
+      DB_PASSWORD: platform
+      STORY_PLANNER_LLM_API_KEY: "${STORY_PLANNER_LLM_API_KEY:-${GPT_IMAGE_API_KEY}}"
+      STORY_PLANNER_LLM_BASE_URL: "${STORY_PLANNER_LLM_BASE_URL:-https://ai.farmmx.com/v1}"
+      GPT_IMAGE_API_KEY: "${GPT_IMAGE_API_KEY}"
+      GPT_IMAGE_BASE_URL: "${GPT_IMAGE_BASE_URL:-https://ai.farmmx.com}"
+      OSS_DISABLED: "1"
+      STORAGE_PATH: /storage
+    volumes:
+      - type: bind
+        source: F:\PyCharm_Project\VNStory\storage
+        target: /storage
+  audio_producer:
+    environment:
+      OSS_DISABLED: "1"
+      STORAGE_PATH: /storage
+    volumes:
+      - type: bind
+        source: F:\PyCharm_Project\VNStory\storage
+        target: /storage
+  sound_arranger:
+    environment:
+      OSS_DISABLED: "1"
+      STORAGE_PATH: /storage
+    volumes:
+      - type: bind
+        source: F:\PyCharm_Project\VNStory\storage
+        target: /storage
+  game_builder:
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: "15432"
+      DB_NAME: agent_platform
+      DB_USER: platform
+      DB_PASSWORD: platform
+      LOCAL_PIPELINE_MODE: "1"
+      OSS_DISABLED: "1"
+      STORAGE_PATH: /storage
+    volumes:
+      - type: bind
+        source: F:\PyCharm_Project\VNStory\storage
+        target: /storage

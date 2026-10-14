@@ -1,0 +1,199 @@
+name: style-anchor-local
+
+x-runtime-environment: &runtime-environment
+  PYTHONPATH: /app:/app/services/audio_producer
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: style_anchor_local
+  DB_USER: style_anchor
+  DB_PASSWORD: style_anchor_local
+  PLATFORM_DB_HOST: postgres
+  PLATFORM_DB_PORT: "5432"
+  PLATFORM_DB_NAME: style_anchor_local
+  PLATFORM_DB_USER: style_anchor
+  PLATFORM_DB_PASSWORD: style_anchor_local
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  STORAGE_PATH: /storage
+  GROUP_NAME: style-anchor-local
+  LOCAL_PIPELINE_MODE: "1"
+  STYLE_ANCHOR_REUSE_ENABLED: "1"
+  # 兼容旧镜像；新代码固定使用自动 LLM+Anchor 路线。
+  LLM_LAZY_STYLE_ANCHOR_ENABLED: "1"
+  GPT_IMAGE_ARTIFACT_SUPPRESSION_ENABLED: "1"
+  GPT_IMAGE_TWO_PASS_ANCHOR_ENABLED: "1"
+  GPT_IMAGE_KEEP_RAW_ANCHOR: "1"
+  OSS_DISABLED: "1"
+  OSS_ENDPOINT: ""
+  OSS_ACCESS_KEY: ""
+  OSS_SECRET_KEY: ""
+  OSS_BUCKET: ""
+  CDN_BASE_URL: ""
+  PLATFORM_API_URL: http://disabled.invalid
+  DOMAIN: localhost
+  PYTHON_DOTENV_DISABLED: "1"
+  STORY_PLANNER_LLM_BASE_URL: ${STORY_PLANNER_LLM_BASE_URL:-https://ai.farmmx.com/v1}
+  STORY_PLANNER_LLM_TIMEOUT: "240"
+
+x-runtime: &runtime
+  image: ${STYLE_ANCHOR_RUNTIME_IMAGE:-sj-native-provider-runtime:20260807-180324}
+  platform: linux/amd64
+  working_dir: /app
+  env_file:
+    - ../../.env
+  volumes:
+    - ../..:/app
+    - ../../storage:/storage
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    platform: linux/amd64
+    environment:
+      POSTGRES_DB: style_anchor_local
+      POSTGRES_USER: style_anchor
+      POSTGRES_PASSWORD: style_anchor_local
+      POSTGRES_INITDB_ARGS: --encoding=UTF8
+    volumes:
+      - style_anchor_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U style_anchor -d style_anchor_local"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    platform: linux/amd64
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  db_bootstrap:
+    image: ${STYLE_ANCHOR_WEB_IMAGE:-style-anchor-local-web:latest}
+    build:
+      context: ../..
+      dockerfile: experiments/style_anchor_ui/Dockerfile.web
+    platform: linux/amd64
+    working_dir: /app
+    env_file:
+      - ../../.env
+    environment:
+      <<: *runtime-environment
+    volumes:
+      - ../..:/app
+      - ../../storage:/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: python experiments/style_anchor_ui/bootstrap_local_db.py
+
+  api_gateway:
+    <<: *runtime
+    image: ${STYLE_ANCHOR_WEB_IMAGE:-style-anchor-local-web:latest}
+    build:
+      context: ../..
+      dockerfile: experiments/style_anchor_ui/Dockerfile.web
+    environment:
+      <<: *runtime-environment
+    volumes:
+      - ../..:/app
+      - ../../storage:/storage
+      - ../../storage/local_logs/api_gateway:/app/services/api_gateway/log
+    command: python -m uvicorn services.api_gateway.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "18000:8000"
+    depends_on:
+      db_bootstrap:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  style_ui:
+    <<: *runtime
+    image: ${STYLE_ANCHOR_WEB_IMAGE:-style-anchor-local-web:latest}
+    build:
+      context: ../..
+      dockerfile: experiments/style_anchor_ui/Dockerfile.web
+    environment:
+      <<: *runtime-environment
+      STYLE_UI_GATEWAY_URL: http://api_gateway:8000
+    command: python -m uvicorn experiments.style_anchor_ui.app:app --host 0.0.0.0 --port 7861
+    ports:
+      - "17861:7861"
+    depends_on:
+      api_gateway:
+        condition: service_started
+      db_bootstrap:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  story_planner:
+    <<: *runtime
+    environment:
+      <<: *runtime-environment
+    command: >-
+      sh -lc 'export STORY_PLANNER_LLM_API_KEY="$${GPT_IMAGE_API_KEY}";
+      exec celery -A services.story_planner.tasks worker --loglevel=info -Q story_queue -c 1'
+
+  info_extractor:
+    <<: *runtime
+    environment:
+      <<: *runtime-environment
+    volumes:
+      - ../..:/app
+      - ../../storage:/storage
+      - ../../storage/local_logs/info_extractor:/app/services/info_extractor/log
+    command: celery -A services.info_extractor.tasks worker --loglevel=info -Q extract_queue -c 1
+
+  char_designer:
+    <<: *runtime
+    environment:
+      <<: *runtime-environment
+    volumes:
+      - ../..:/app
+      - ../../storage:/storage
+      - ../../storage/local_logs/char_designer:/app/services/char_designer/log
+    command: >-
+      sh -lc 'export STORY_PLANNER_LLM_API_KEY="$${STORY_PLANNER_LLM_API_KEY:-$${GPT_IMAGE_API_KEY}}";
+      exec celery -A services.char_designer.tasks worker --loglevel=info -Q char_queue -c 1'
+
+  scene_painter:
+    <<: *runtime
+    environment:
+      <<: *runtime-environment
+    volumes:
+      - ../..:/app
+      - ../../storage:/storage
+      - ../../storage/local_logs/scene_painter:/app/services/scene_painter/logs
+    command: >-
+      sh -lc 'export STORY_PLANNER_LLM_API_KEY="$${STORY_PLANNER_LLM_API_KEY:-$${GPT_IMAGE_API_KEY}}";
+      exec celery -A services.scene_painter.tasks worker --loglevel=info -Q scene_queue -c 1'
+
+  game_builder:
+    <<: *runtime
+    environment:
+      <<: *runtime-environment
+    volumes:
+      - ../..:/app
+      - ../../storage:/storage
+      - ../../storage/local_logs/game_builder:/app/services/game_builder/log
+    command: celery -A services.game_builder.tasks worker --loglevel=info -Q build_queue -c 1
+
+volumes:
+  style_anchor_postgres:

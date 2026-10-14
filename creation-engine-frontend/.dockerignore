@@ -1,0 +1,14 @@
+# 构建上下文里不需要的东西。node_modules 尤其重要:镜像内由 npm ci 重装,
+# 带进去既拖慢上传又可能让宿主平台的原生依赖污染构建结果。
+node_modules
+dist
+.git
+.env.local
+.env.*.local
+npm-debug.log*
+
+# 迁移残留:从 api_gateway 前端提取的 TS 源文件,代码已落到 src/ 下,
+# 本项目没有 TS 工具链,留着只会被 COPY . . 打进构建阶段白占体积。
+taskCreationNew
+api
+utils

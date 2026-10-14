@@ -1,0 +1,162 @@
+metadata:
+  service: char_designer
+  name: extract_raw_merge_user_en
+  version: v1.0
+  language: en-US
+  prompt_type: user_prompt
+  used_in: analyze_character_with_llm
+  description: "单角色跨节点整合分析用户提示词 - 合并多节点状态，生成统一人物档案"
+  tags:
+    - character-merge
+    - user-prompt
+    - story-tree
+    - english
+
+content: |
+  # Task: Single Character Analysis
+  
+  Analyze the following character's features across multiple story tree nodes and generate a unified character profile.
+  
+  ## Input Data:
+  Character ID: {character_id}
+  
+  Below are {states_count} node states for this character in the story tree, arranged in depth-first traversal order:
+  
+  {states_str}
+  
+  ## Task-Specific Instructions:
+  
+  ### 1. Extract and Validate Character Names
+  - Extract all name variants from node state data
+  - Determine primary name (`name`) using this strict priority order:
+    1. **Complete real name** (highest priority), e.g. "江辰"
+    2. **Personal name + relationship designation** if no complete real name is available, e.g. "江雨的哥哥"
+    3. **Surname + title/occupation** if no complete real name is available, e.g. "江老师"
+    4. **Event/background + generic reference** for brief unnamed passerby characters, e.g. "守墓的那个女人", "送外卖的那个男人", "孩子去世的那个女人"
+  - **Primary-name correctness is more important than alias completeness**: missing some `other_names` is acceptable, but using an overly generic primary `name` such as "哥哥" or "老师" when a more specific form exists is not acceptable.
+  - Collect other names (`other_names`): Including aliases, titles, honorifics, nicknames, abbreviations, etc.
+  - **Note**: Node state data may already contain `other_names`; refer to this data and supplement missed names
+  - **Strongly avoid as `name` when a more specific option exists**: generic relationship terms alone ("哥哥", "母亲"), generic titles alone ("老师", "医生"), and appearance/clothing-based labels ("穿黑裙子的女人", "红衣女人", "长发女人")
+  - **If a complete real name exists, it must override relationship/title forms**: e.g. use "江辰" instead of "江雨的哥哥" or "江老师"
+  - **For unnamed one-scene/minor characters, prefer event/action/background names instead of appearance/clothing names**
+  - **Examples**:
+    * If node data contains "江辰", "江雨的哥哥", and "哥哥" for one person, output `name: "江辰"`.
+    * If node data contains "江雨的哥哥" and "哥哥" but no complete real name, output `name: "江雨的哥哥"`.
+    * If node data contains "江辰", "江老师", and "老师" for one person, output `name: "江辰"`.
+    * If node data contains "江老师" and "老师" but no complete real name, output `name: "江老师"`.
+    * For a minor unnamed passerby, prefer `name: "守墓的那个女人"` over appearance-only names.
+    * Avoid `name: "穿黑裙子的女人"`, `"红衣女人"`, `"长发女人"` when an event/background-based name can be formed.
+  - **Name Capitalization**: For English names, ensure proper capitalization (e.g., "Sherlock Holmes", not "sherlock holmes")
+
+  **Filtering Rules (Critical - Must Apply Strictly)**:
+  - **Strictly Prohibit Pronouns**: English ("He", "She", "Him", "Her", "They", "It", "You", "I", "We", "Us", "Them", "His", "Her", "Their", "My", "Your"), Chinese ("他", "她", "它", "你", "我", "咱们", "您", "俺", "他的", "她的", "我的", "你的"), and any other pronouns should not be extracted as names
+  - **Strictly Prohibit Generic Descriptions**: "His brother", "My mother", "The man", "The woman", "The boy", "The girl", "The old man", "The child", "That person", "Someone", Chinese gender/age generic nouns ("男人", "女人", "男孩", "女孩", "男孩子", "女孩子", "男生", "女生", "少年", "少女", "老人", "老头", "老太", "小孩", "孩子", "青年", "中年人"), "陌生人", "访客", "客人", "仆人", "守卫" (unless used as a unique proper noun consistently throughout the text)
+  - **Only Keep Valid Names**: Proper nouns (full names, first names, last names), specific titles with names ("Father René", "Dr. Watson", "李医生"), unique nicknames ("Tempter", "千手修罗")
+  - **Name Length Validation**: Minimum 2 characters (English) or 1 character (Chinese/Japanese/Korean), maximum 50 characters
+  - **Entity Merging**: If "The stranger" and "Lestat" refer to the same character, use "Lestat" as name and put "The stranger" in other_names
+  
+  ### 2. Analyze All Node States
+  Find duplicate, similar, or complementary information across nodes.
+  - Merge character-level `info` into a concise factual identity/role summary.
+  - Preserve every existing `refs` string exactly and take their ordered union. Never invent, rewrite, or drop source refs.
+  - Every merged personality/body/clothing variant must retain an `info` description and the union of `refs` supporting that variant.
+  
+  ### 3. Extract Personality Features
+  - Use one flat `traits` array; do not output main_traits, secondary_traits, flaws, or virtues
+  - Keep approximately 4-8 durable traits, ordered from most defining to least defining; positive and negative traits share the same array
+  - Merge synonyms and overlapping descriptions instead of retaining every unique wording
+  - Default to one personality variant
+  - Create another variant only for a long-term, fundamental, sustained personality transformation supported across the narrative
+  - Temporary emotions and scene states (anger, sadness, surprise, fear, disgust, happiness, nervousness, shock, etc.) are not personality traits
+  - Do not infer a stable trait from a single action or reaction; if evidence is insufficient, return fewer than 4 traits rather than inventing them
+  - Keep each variant's `info` to one factual sentence; it is explanatory metadata and is not part of the image prompt
+  
+  ### 4. Analyze Body State
+  - Compare whole_body_variants field across different nodes
+  - Create a new variant when the OUTWARD APPEARANCE changes (including a change in `apparent_age`, or visible growth/aging/body-proportion change)
+  - **Core split rule**: the trigger is a change in the PHYSICAL BODY / outward look. When year-scale time has passed AND the body changes as a result (height, face, proportions, build), split into a new variant and update `apparent_age`, `age_category`, and `height` together (infer the change). When years pass but the body is unchanged (ageless beings, or a mature adult over a short span with no described change), keep ONE variant and record the real-age span in `info` (e.g. YeLing 103 → 110 always looking ~20). A differing derived `age_category` with no bodily change is not a reason to split.
+  - **Growing minors (fine granularity)**: during childhood/adolescence even a single year of growth changes the body, so a one-year step already splits, and a 1–2 year gap all the more — keep a separate variant for each year-scale growth step (e.g. a child at 8, 9, 11, 14 → separate variants), with `apparent_age` tracking the real age. Do not over-split identical ages revisited across scenes.
+  - For features not mentioned, inherit description from previous node
+  - Extract complete appearance information from appearance field in whole_body_variants
+  - **Must infer gender**: Infer character gender from text (male/female/other), criteria include pronoun usage (after resolving coreference), character titles, appearance features, social roles, etc. If unable to determine, use empty string ("")
+  - **Three age fields do NOT override each other**: `age` (real/chronological age), `apparent_age` (outward look), `age_category` (perceived band). The only strong relationship is `apparent_age → age_category`. Never copy `age` into `apparent_age`, and never let `apparent_age`/`age_category` rewrite `age`.
+  - **Preserve `apparent_age`**: Keep the apparent (outward-looking) age for every whole_body variant. Format is a pure number string (e.g., "18") or empty string. Fill it ONLY with textual evidence that the outward age differs from the real `age` (e.g., actually 100 but looks 18 → age="100", apparent_age="18"); leave empty when they match or when the text gives no separate outward-age evidence (an explicit "18 years old" → age="18", apparent_age=""). When `apparent_age` is set, derive `age_category` from it (the visible look), not from the real `age`. Never fabricate a precise `apparent_age` number from an `age_category` label.
+  - **Preserve `human_animal_form`**: Keep the human/animal form level for every whole_body variant. Value must be exactly one of: `pure_human`, `humanoid`, `humanoid_local_animal_feature`, `human_face_animal_body`, `animal_form_humanoid_activity`, `animal_head_humanoid_body`, `pure_animal_form`, `other`; or empty string if undeterminable. This is critical so non-human characters (parrot, rat, lobster, etc.) are not drawn as humans. A form change across nodes (e.g., human form → animal form for a shapeshifter) must create a separate whole_body variant.
+  
+  ### 5. Analyze Clothing State
+  - Compare clothing_variants field across different nodes
+  - Treat a variant as a reusable garment design, not as a scene, action, carried item, or temporary condition
+  - Merge compatible descriptions of the same garment type, cut, color family, material, and layers, even when their labels say daily, banquet, battle, pursuit, action, work, travel, formal occasion, or night
+  - Scene/purpose labels alone do not prove a costume change; a shorter or vaguer compatible description inherits the richer garment details
+  - Mud, dust, sweat, blood, wetness, loosened fastening, an open collar, rolled sleeves, or temporarily wearing the same outer robe loosely do not create another clothing variant
+  - Occupation wording changes do not create another variant unless the character actually changes into a different uniform or garment design
+  - Weapon/tool differences do not create another clothing variant, including drawing, storing, upgrading, replacing, or enchanting a weapon; merge their ordered unique union into `weapons`
+  - Create a new variant only for a materially different visible garment design, such as wedding clothes, armor, a real uniform change, a disguise, actual sleepwear/underwear replacing the outer robe, or conflicting garment color/cut/material/layers
+  - When garment descriptions are compatible and no explicit change of clothes is stated, prefer merging
+  - Extract complete clothing information from outfit_discription, accessories, tmp_accessories, and other fields in clothing_variants
+  - Keep `accessories` for fixed, reusable outfit accessories only
+  - Put temporary plot items acquired, carried, held, or used during only part of the story in `tmp_accessories`
+  - `tmp_accessories` must be a flat array of concrete item strings only; do not use nested objects, descriptions, refs, or time ranges
+  - Differences only in `tmp_accessories` do not create separate clothing variants; merge the clothing and take the ordered unique union of its `tmp_accessories`
+  - Do not move `tmp_accessories` into `accessories` or outfit_discription; base character portraits must ignore them
+  - Compatible moon-white/white wide-sleeved robes called combat clothes, banquet robes, daily robes, a loosely worn night outer robe, and action clothes are one outfit. Dirt/sweat, pouches/talismans/handkerchiefs/cleaning cloths, and different weapons do not split it; a red wedding robe does.
+  
+  ### 6. Generate Valid Status Combinations
+  - Based on extracted variants, generate reasonable status combinations for each node
+  - Format: CharacterName-personality_id-whole_body_id-clothing_id
+  - Each node should correspond to a valid combination
+  - Each combination must retain `info` describing its applicable narrative situation and the union of its source `refs`
+  - If one node contains multiple genuinely different states at different source ranges, retain multiple combinations for that node and keep their refs separate; do not collapse them into one merely because the node_id is the same
+  
+  ## Important Notes:
+  1. Character ID may not be the final name, please infer appropriate character name from data. If uncertain, use the Character ID: {character_id}
+  2. Node order represents story timeline
+  3. Strictly follow merge, inherit, distinguish logic: merge similar, inherit if not mentioned, distinguish core changes
+  4. If multiple nodes have the same state, should map to the same variant combination
+  5. **Age Handling**: Split whole_body variants by OUTWARD appearance change (including `apparent_age`), NOT by real-age change alone. A rising real `age` with unchanged look stays ONE variant; record the age span in `info`.
+  6. **Age Category Judgment**: When `apparent_age` is a number, derive `age_category` from it by band (infant 0-5, child 6-11, adolescent 12-18, young adult 19-35, middle-aged 36-59, elderly 60+). Otherwise, if a specific real-age number exists and there is no youthful/ageless/altered-look signal, map that real age; if no number exists, judge from context. Do not invent a precise `apparent_age` from a category label.
+  7. **Height Handling**: Every whole_body variant must include a `height` field. Format is a pure integer string in centimeters (e.g., "175"), no units, no ranges, no decimals. If the text states a specific height, convert to centimeters. If not, infer based on gender, race, age_category, body_type, body_description, occupation and any descriptors such as "tall", "short", "petite". Always output a value (e.g., adult male human ~"175", adult female human ~"163"); use empty string only when no reasonable inference is possible.
+  8. **Gender Inference**: Must infer character gender from text (male/female/other), criteria include pronoun usage (he/she), character titles (Mr./Ms.), appearance features, social roles, etc.
+  9. **Occupation Change**: Occupation wording alone does not create a clothing variant; only an actual different uniform or garment design does
+  10. **Weapon Change**: Weapon changes do not create clothing variants unless the garments themselves also materially change
+  11. **Clothing Style Field**: clothing_style field cannot be filled with "no clothing". If character is not wearing clothing, judge clothing style based on context or infer from occupation
+  12. **Refer to YeLing Example**: Must refer to the complete YeLing example logic in the system prompt for processing
+  
+  ## Return Format Requirements:
+  **CRITICAL: You MUST return a complete JSON object with ALL of the following fields. Missing any field will cause processing failure.**
+  
+  Required fields (ALL are mandatory):
+  - name: Character name (string, REQUIRED - infer from the data, preserve original language)
+  - info: Concise merged identity/role/context summary (string)
+  - refs: Ordered union of all character-level source refs (array of strings; preserve exact input values)
+  - other_names: List of other names (array, can be empty [])
+  - personality_variants: Extracted personality variant array (array, personality_id numbered consecutively starting from 1, can be empty [])
+    Each personality variant must use this compact schema: {"personality_id": 1, "traits": ["trait 1", "trait 2"], "info": "one concise sentence", "refs": []}. Do not output main_traits, secondary_traits, flaws, or virtues.
+  - whole_body_variants: Extracted body variant array (array, whole_body_id numbered consecutively starting from 1, can be empty [])
+  - clothing_variants: Extracted clothing variant array (array, clothing_id numbered consecutively starting from 1, can be empty []). Each clothing variant must contain `accessories` and `tmp_accessories` as string arrays.
+  - valid_status_combinations: Valid status combinations generated for each node (array, format: CharacterName-personality_id-whole_body_id-clothing_id, can be empty [])
+  
+  Example JSON structure:
+  {{{{
+    "name": "CharacterName",
+    "info": "Merged factual character summary",
+    "refs": ["chapter_1_12_48"],
+    "other_names": ["Alias1", "Alias2"],
+    "personality_variants": [...],
+    "whole_body_variants": [...],
+    "clothing_variants": [...],
+    "valid_status_combinations": [...]
+  }}}}
+  
+  **IMPORTANT**:
+  1. Return ONLY the JSON object, no additional text or explanations
+  2. ALL eight fields above MUST be present in your response
+  3. If you cannot determine a value for a field, use an empty array [] or the Character ID for "name"
+  4. Do NOT omit any field
+  
+  **REMINDER**: Apply all Universal Extraction Rules from the system prompt, especially:
+  - Perform Pronoun Coreference Resolution first
+  - Preserve original language for all names
+  - Extract ALL name variants into other_names
+  - Follow timeline judgment logic (ignore memory content)
+  - Follow all field description specification rules

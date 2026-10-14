@@ -1,0 +1,1865 @@
+{
+  "count": 121,
+  "voices_list": [
+    {
+      "voice_id": "cosyvoice-v2-yingxem-17cb1019a917413e8cecd6778bcc878e",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "老年",
+      "tags": [
+        "阴险毒辣",
+        "语气冷漠、森寒"
+      ],
+      "description": "一位阴险毒辣的老年男性。音色极度干枯沙哑，像两块骨头在摩擦。语速缓慢阴沉，每一个字都像是从牙缝里挤出来的毒液。语气冷漠、森寒，透着一股令人毛骨悚然的杀意，适合演绎心胸狭隘的宗门长老或擅长用毒的邪魂师。",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-wanpiem-ac77f115ae3a49ee967758a06b6e7323",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "老年",
+      "tags": [
+        "顽皮",
+        "搞怪",
+        "老顽童"
+      ],
+      "description": "一位性格疯癫顽皮的老年男性。音调忽高忽低，极其活跃，带有一种孩童般的嬉闹感和滑稽感。语速较快，笑声爽朗夸张，完全没有长辈的架子。语气轻松、搞怪，像是一个永远长不大的老顽童，适合演绎性格古怪的绝世高手或喜欢捉弄主角的怪老头。",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-guozaomw-868dd88bf0044928aecacc44c8b29059",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "中年",
+      "tags": [
+        "夸张聒噪",
+        "喜欢八卦",
+        "市井气息"
+      ],
+      "description": "一位夸张聒噪的中年女性。音调很高，说话像连珠炮一样快。语调起伏极大，喜欢在句尾使用滑音和感叹词。语气极其八卦、热情过度，充满了市井气息，像是一个手里永远嗑着瓜子的媒婆或专门打听小道消息的长舌妇。",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-haosmidm-7a688a07a9264b578eb9b2e5a4b6c8e5",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "豪爽憨厚",
+        "爽朗",
+        "乐观",
+        "对生活充满热爱"
+      ],
+      "description": "一位豪爽憨厚的中年男性。音色极度浑厚圆润，胸腔共鸣非常强，说话时仿佛嘴里含着东西，带有明显的“肉感”。语速中等偏慢，笑声爽朗震耳，语气乐观、随性且充满了对生活（特别是食物）的热爱，适合演绎客栈大厨、酒肉朋友或体型宽大的力量型角色。",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-cixem-cbc4c6d24e894c25b0a5c12147db97b4",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "老年",
+      "tags": [
+        "慈祥温暖",
+        "善良",
+        "慈爱"
+      ],
+      "description": "一位慈祥温暖的老年女性。音色柔软松弛，带有老年人特有的轻微颤音。语速缓慢舒展，语气中充满了宠溺和笑意，像冬日的暖阳一样让人感到安心。适合演绎疼爱孙子的奶奶、善良的农村阿婆或给予主角温暖的长辈。",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-guzhiem-a9312100776e4eaca28a00523df426f2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "老年",
+      "tags": [
+        "固执倔强",
+        "不服输",
+        "有个性"
+      ],
+      "description": "一位固执硬朗的老年男性。音色沙哑粗糙，说话像是在吼，带着浓重的喉音。语速较快且急躁，气息略显急促。语气倔强、不服输，透着一股“老子吃过的盐比你吃过的米都多”的傲气，适合演绎脾气火爆的老兵或顽固的村长。",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-keboeldw-fa36a467d29a422dab2405f3f51d6e9c",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "老年",
+      "tags": [
+        "尖酸刻薄",
+        "挑剔",
+        "势利的机会主义者"
+      ],
+      "description": "一位尖酸刻薄的老年女性。音色尖锐刺耳，嗓音紧绷，带有一种令人厌恶的挑剔感。语速中等偏快，重音咬得很死。语气凶狠、势利，对主人极度谄媚，对下人则恶语相向，适合演绎豪门里的恶毒管家婆或心狠手辣的老嬷嬷。",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-ruizhiem-1853ad76cffa4611806d9bed71e2cc58",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "老年",
+      "tags": [
+        "睿智",
+        "超脱",
+        "淡然",
+        "通透"
+      ],
+      "description": "一位苍老而睿智的老年男性。音色古旧，带有岁月的磨砺感，但中气依然充沛。语速极慢，每一个字都像是经过深思熟虑，节奏平稳如古钟。语气淡然、超脱，透着一种看破红尘的通透和大智慧，适合演绎隐居深山的绝世高手或指点迷津的老神仙。",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-pushimidm-857b0e0ac6c84e9cadd001ebfa25d16c",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "憨厚朴实",
+        "诚恳",
+        "老实"
+      ],
+      "description": "一位憨厚朴实的中年男性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-zqimidm-d62f78d6e5fa486ca3385d3cc37c53d4",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "正气",
+        "阳刚",
+        "自信且富有感染力",
+        "坚定地信念"
+      ],
+      "description": "一位正气阳刚且有信念的中年男性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-aomanmidm-346cd41815274b6b9283ff551b0dcde7",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "傲慢迂腐",
+        "自命不凡",
+        "高高在上",
+        "轻蔑",
+        "不屑"
+      ],
+      "description": "一位傲慢迂腐的中年男性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-lenmomidm-aac903f6b7a240a7aa93e3c4d9d5a687",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "冷漠阴沉",
+        "没有情感",
+        "冷血杀手",
+        "肃杀之气"
+      ],
+      "description": "一位冷漠阴沉的中年男性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-sjmidm-687a4c07af594de38d86e91062470f06",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "神经质",
+        "癫狂",
+        "情绪不稳定"
+      ],
+      "description": "一位神经质且癫狂的中年男性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-cwmidm-b652926fba5c4e4e931ce022a484331b",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "磁性",
+        "客观",
+        "严肃",
+        "充满自信"
+      ],
+      "description": "一位沉稳的中年男性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-bwmidm-b05f53f8012246cdb0d25e00d0fd9723",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "语气讨好",
+        "惊慌且卑微",
+        "害怕得罪人"
+      ],
+      "description": "一位唯唯诺诺的中年男性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-hmmidm-c1ff30a7ef8c470f81066a62fb8d6c6f",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "语气激昂",
+        "刚烈",
+        "江湖豪气"
+      ],
+      "description": "一位粗犷豪迈的中年男性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-wnmidm-fb066e52bd83456baeffc9ada3b404f6",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "温暖醇厚",
+        "音色松弛柔软",
+        "亲切感"
+      ],
+      "description": "一位温暖醇厚的中年男性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-wrmidw-4a314fe99a9b463a8938ca168423f8fa",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "中年",
+      "tags": [
+        "温柔慈祥",
+        "音色圆润柔和",
+        "语气亲切"
+      ],
+      "description": "一位温柔慈祥的中年女性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-xwmidm-4a8f4a09169041de8374c0a2edc72cc0",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "虚伪",
+        "讥讽",
+        "斯文败类"
+      ],
+      "description": "一位阴柔狡黠的中年男性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-zxmidw-f4795de8bbfa4801b8a1610dbd0bc7b8",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "中年",
+      "tags": [
+        "知性干练",
+        "自信",
+        "果敢"
+      ],
+      "description": "一位知性干练的中年女性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-clearman-96c17d52e4564800ab8b126358d3b269",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "少年",
+      "tags": [
+        "清澈",
+        "认真",
+        "邻家"
+      ],
+      "description": "一位认真清澈的邻家少年弟弟声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-dashi-00c00e93d6434a5d864547f91162a418",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "儒雅",
+        "低沉",
+        "平稳",
+        "导师"
+      ],
+      "description": "儒雅男音，声线低沉、平稳，适配中年，青年",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-gentleman-356fe56d4f324984ac7b9bd42a532c26",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "温润",
+        "磁性",
+        "绅士"
+      ],
+      "description": "一位温润磁性的青年男性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-hammer-20e7cf662a4146a09aca0204c44355f4",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "沉稳",
+        "沙哑",
+        "饱经风霜",
+        "硬汉"
+      ],
+      "description": "饱经风霜的中年男性声音，沉稳，沙哑",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-lengyan-f47f013a8d894f8db7da478534d97134",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "高贵",
+        "冷艳",
+        "御姐",
+        "成熟"
+      ],
+      "description": "青年女性，成熟御姐音，高贵冷艳",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-midbass1-c3e0e87d35bf4fce991ad50c316427ab",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "低沉",
+        "浑厚"
+      ],
+      "description": "中年男性，声音低沉",
+      "status": "OK"
+    },
+    {
+      "voice_id": "cosyvoice-v2-warmnv-7f8851a8a1004fb6a711b649a753c375",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "温暖",
+        "清脆",
+        "亲切",
+        "清晰"
+      ],
+      "description": "一位温暖清脆的青年女性闺蜜声音，友好而清晰",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyingxiao",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "清甜",
+        "活力"
+      ],
+      "description": "一位清甜的20岁女性声音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longjixin",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "毒舌",
+        "心机",
+        "反派"
+      ],
+      "description": "青年女性，毒舌心机女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longdaiyu",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "娇柔",
+        "才女",
+        "直率"
+      ],
+      "description": "青年女性，娇率才女音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanli",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "利落",
+        "从容",
+        "干练"
+      ],
+      "description": "青年女性，利落从容女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanlang",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "清爽",
+        "利落"
+      ],
+      "description": "青年男性，清爽利落男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanwen",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "优雅",
+        "知性"
+      ],
+      "description": "青年女性，优雅知性女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanyun",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "居家",
+        "暖男",
+        "温柔"
+      ],
+      "description": "青年男性，居家暖男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyumi_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "正经",
+        "严肃"
+      ],
+      "description": "青年女性，正经青年女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longxiaochun_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "知性",
+        "积极",
+        "明快"
+      ],
+      "description": "青年女性，知性积极女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longxiaoxia_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "沉稳",
+        "权威",
+        "新闻"
+      ],
+      "description": "青年女性，沉稳权威女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyichen",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "洒脱",
+        "活力"
+      ],
+      "description": "青年男性，洒脱活力男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longwanjun",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "通用"
+      ],
+      "description": "",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longlaobo",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "老年",
+      "tags": [
+        "沧桑",
+        "岁月",
+        "老者"
+      ],
+      "description": "老年男性，沧桑岁月爷",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longlaoyi",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "老年",
+      "tags": [
+        "烟火气",
+        "从容",
+        "长辈"
+      ],
+      "description": "烟火从容阿姨",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longbaizhi",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "睿智",
+        "旁白",
+        "叙述"
+      ],
+      "description": "青年女性，睿气旁白女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longsanshu",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "中年",
+      "tags": [
+        "沉稳",
+        "质感",
+        "成熟"
+      ],
+      "description": "青年男性，沉稳质感男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longmiao_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "抑扬顿挫",
+        "表现力"
+      ],
+      "description": "青年女性，抑扬顿挫女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyue_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "温暖",
+        "磁性"
+      ],
+      "description": "青年女性，温暖磁性女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longnan_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "睿智",
+        "理智"
+      ],
+      "description": "青年男性，睿智青年男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyuan_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "温暖",
+        "治愈"
+      ],
+      "description": "青年女性，温暖治愈女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanqin",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "亲和",
+        "活泼"
+      ],
+      "description": "青年女性，亲和活泼女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanya",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "高雅",
+        "气质"
+      ],
+      "description": "青年女性，高雅气质女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanshuo",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "干净",
+        "清爽"
+      ],
+      "description": "青年男性，干净清爽男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanling",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "灵动",
+        "思维活跃"
+      ],
+      "description": "青年女性，思维灵动女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanzhi",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "睿智",
+        "轻熟",
+        "聪明"
+      ],
+      "description": "青年男性，睿智轻熟男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanrou",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "温柔",
+        "闺蜜"
+      ],
+      "description": "青年女性，青年女性，温柔闺蜜女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longqiang_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "浪漫",
+        "风情"
+      ],
+      "description": "青年女性，浪漫风情女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longhan_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "温暖",
+        "痴情",
+        "深情"
+      ],
+      "description": "青年男性，温暖痴情男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longxing_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "温婉",
+        "邻家"
+      ],
+      "description": "青年女性，温婉邻家女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longhua_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "元气",
+        "甜美",
+        "活泼"
+      ],
+      "description": "青年女性，元气甜美女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longwan_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "积极",
+        "知性"
+      ],
+      "description": "青年女性，积极知性女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longcheng_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "智慧",
+        "聪明"
+      ],
+      "description": "青年男性，智慧青年男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longfeifei_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "甜美",
+        "娇气",
+        "撒娇"
+      ],
+      "description": "青年女性，甜美娇气女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longxiaocheng_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "磁性",
+        "低音",
+        "反派"
+      ],
+      "description": "青年男性，磁性低音男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longzhe_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "呆板",
+        "暖男",
+        "老实"
+      ],
+      "description": "青年男性，呆板大暖男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyan_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "温暖",
+        "春风",
+        "柔和"
+      ],
+      "description": "青年女性，温暖春风女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longtian_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "磁性",
+        "理智",
+        "冷静"
+      ],
+      "description": "青年男性，磁性理智男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longze_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "温暖",
+        "元气",
+        "活力"
+      ],
+      "description": "青年男性，温暖元气男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longshao_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "积极",
+        "向上",
+        "正能量"
+      ],
+      "description": "青年男性，积极向上男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longhao_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "多情",
+        "忧郁",
+        "深情"
+      ],
+      "description": "青年男性，多情忧郁男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "kabuleshen_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "阳光",
+        "自信"
+      ],
+      "description": "青年男性，阳光自信",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longhuhu",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "儿童",
+      "tags": [
+        "天真",
+        "烂漫",
+        "可爱"
+      ],
+      "description": "儿童女性，天真烂漫女童",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanpei",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "教师",
+        "清晰",
+        "教育"
+      ],
+      "description": "青年女性，青少年教师女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longpaopao",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "儿童",
+      "tags": [
+        "泡泡音",
+        "特色"
+      ],
+      "description": "儿童女性，泡泡音",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longniuniu",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "儿童",
+      "tags": [
+        "阳光",
+        "活力",
+        "男童"
+      ],
+      "description": "儿童男性，阳光男童声",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyingmu",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "优雅",
+        "知性"
+      ],
+      "description": "青年女性，优雅知性女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyingxun",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "年轻",
+        "青涩",
+        "少年感"
+      ],
+      "description": "青年男性，年轻青涩男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyingcui",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "严肃",
+        "催收",
+        "严厉"
+      ],
+      "description": "青年男性，严肃催收男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyingda",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "开朗",
+        "高音",
+        "明亮"
+      ],
+      "description": "青年女性，开朗高音女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyingjing",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "低调",
+        "冷静"
+      ],
+      "description": "青年女性，低调冷静女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyingyan",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "义正严辞",
+        "正直"
+      ],
+      "description": "青年女性，义正严辞女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyingtian",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "温柔",
+        "甜美"
+      ],
+      "description": "青年女性，温柔甜美女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyingbing",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "尖锐",
+        "强势",
+        "反派"
+      ],
+      "description": "青年女性，尖锐强势女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyingtao",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "温柔",
+        "淡定"
+      ],
+      "description": "青年女性，温柔淡定女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longyingling",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "温和",
+        "共情",
+        "知心"
+      ],
+      "description": "青年女性，温和共情女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanran",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "活泼",
+        "质感"
+      ],
+      "description": "青年女性，活泼质感女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanxuan",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "直播",
+        "带货"
+      ],
+      "description": "青年女性，经典直播女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanchong",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "激情",
+        "推销",
+        "亢奋"
+      ],
+      "description": "青年男性，激情推销男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longanping",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "高亢",
+        "直播"
+      ],
+      "description": "高亢直播女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longjielidou_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "儿童",
+      "tags": [
+        "阳光",
+        "顽皮",
+        "捣蛋"
+      ],
+      "description": "儿童男性，阳光顽皮",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longling_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "儿童",
+      "tags": [
+        "稚气",
+        "呆板"
+      ],
+      "description": "儿童女性，稚气呆板",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longke_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "儿童",
+      "tags": [
+        "懵懂",
+        "乖巧"
+      ],
+      "description": "儿童女性，懵懂乖乖女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longxian_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "儿童",
+      "tags": [
+        "豪放",
+        "可爱"
+      ],
+      "description": "儿童女性，豪放可爱女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longfei_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "热血",
+        "磁性"
+      ],
+      "description": "青年男性，热血磁性男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "libai_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "飘逸",
+        "洒脱",
+        "古风"
+      ],
+      "description": "青年男性，飘逸洒脱",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longjin_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "优雅",
+        "温润"
+      ],
+      "description": "青年男性，优雅温润男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longshu_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "沉稳",
+        "标准"
+      ],
+      "description": "青年男性，沉稳青年男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongbella_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "精准",
+        "干练"
+      ],
+      "description": "青年女性，精准干练女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longshuo_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "博才",
+        "干练"
+      ],
+      "description": "青年男性，博才干练男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longxiaobai_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "沉稳",
+        "播报"
+      ],
+      "description": "青年女性，沉稳播报女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "longjing_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "播音",
+        "典型"
+      ],
+      "description": "青年女性，典型播音女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongstella_v2",
+      "language": [
+        "中文（普通话）",
+        "英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "飒爽",
+        "利落"
+      ],
+      "description": "青年女性，飒爽利落女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongyuuna_v2",
+      "language": [
+        "日语"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "元气",
+        "日语"
+      ],
+      "description": "青年女性，元气霓虹女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongyuuma_v2",
+      "language": [
+        "日语"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "干练",
+        "日语"
+      ],
+      "description": "青年男性，干练霓虹男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongjihun_v2",
+      "language": [
+        "韩语"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "阳光",
+        "韩语"
+      ],
+      "description": "青年男性，阳光韩国男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongeva_v2",
+      "language": [
+        "英式英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "知性",
+        "英音"
+      ],
+      "description": "青年女性，知性英文女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongbrian_v2",
+      "language": [
+        "英式英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "沉稳",
+        "英音"
+      ],
+      "description": "青年男性，沉稳英文男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongluna_v2",
+      "language": [
+        "英式英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "英音",
+        "标准"
+      ],
+      "description": "青年女性，英式英文女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongluca_v2",
+      "language": [
+        "英式英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "英音",
+        "标准"
+      ],
+      "description": "青年男性，英式英文男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongemily_v2",
+      "language": [
+        "英式英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "英音",
+        "标准"
+      ],
+      "description": "青年女性，英式英文女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongeric_v2",
+      "language": [
+        "英式英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "英音",
+        "标准"
+      ],
+      "description": "青年男性，英式英文男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongabby_v2",
+      "language": [
+        "美式英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "美音",
+        "标准"
+      ],
+      "description": "青年女性，美式英文女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongannie_v2",
+      "language": [
+        "美式英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "美音",
+        "标准"
+      ],
+      "description": "青年女性，美式英文女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongandy_v2",
+      "language": [
+        "美式英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "美音",
+        "标准"
+      ],
+      "description": "青年男性，美式英文男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongava_v2",
+      "language": [
+        "美式英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "美音",
+        "标准"
+      ],
+      "description": "青年女性，美式英文女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongbeth_v2",
+      "language": [
+        "美式英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "美音",
+        "标准"
+      ],
+      "description": "青年女性，美式英文女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongbetty_v2",
+      "language": [
+        "美式英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "美音",
+        "标准"
+      ],
+      "description": "青年女性，美式英文女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongcindy_v2",
+      "language": [
+        "美式英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "美音",
+        "标准"
+      ],
+      "description": "青年女性，美式英文女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongcally_v2",
+      "language": [
+        "美式英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "美音",
+        "标准"
+      ],
+      "description": "青年女性，美式英文女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongdavid_v2",
+      "language": [
+        "美式英文"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "美音",
+        "标准"
+      ],
+      "description": "青年男性，美式英文男",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongdonna_v2",
+      "language": [
+        "美式英文"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "美音",
+        "标准"
+      ],
+      "description": "青年女性，美式英文女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongkyong_v2",
+      "language": [
+        "韩语"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "韩语",
+        "标准"
+      ],
+      "description": "青年女性，韩语女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongtomoka_v2",
+      "language": [
+        "日语"
+      ],
+      "gender": "女",
+      "age_category": "青年",
+      "tags": [
+        "日语",
+        "标准"
+      ],
+      "description": "青年女性，日语女",
+      "status": "OK"
+    },
+    {
+      "voice_id": "loongtomoya_v2",
+      "language": [
+        "日语"
+      ],
+      "gender": "男",
+      "age_category": "青年",
+      "tags": [
+        "日语",
+        "标准"
+      ],
+      "description": "青年男性，日语男",
+      "status": "OK"
+    }
+  ]
+}

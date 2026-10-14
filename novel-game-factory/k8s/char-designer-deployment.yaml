@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: char-designer
+  namespace: novel-game
+spec:
+  replicas: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: char-designer
+  template:
+    metadata:
+      labels:
+        app: char-designer
+    spec:
+      terminationGracePeriodSeconds: 172800
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: char-designer
+          image: harbor.farmmx.com/game/char_designer:latest
+          imagePullPolicy: Always
+          command: ["celery"]
+          args:
+            - "-A"
+            - "tasks"
+            - "worker"
+            - "--loglevel=info"
+            - "-Q"
+            - "char_queue"
+            - "--pool=prefork"
+            - "--concurrency=1"
+            - "--prefetch-multiplier=1"
+            - "--max-tasks-per-child=5"
+            - "--without-gossip"
+            - "--without-mingle"
+          envFrom:
+            - configMapRef:
+                name: novel-game-config-test
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: DB_PASSWORD
+            - name: DASHSCOPE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: DASHSCOPE_API_KEY
+            - name: GPT_IMAGE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: GPT_IMAGE_API_KEY
+            - name: STORY_PLANNER_LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: STORY_PLANNER_LLM_API_KEY
+            - name: STORY_PLANNER_LLM_BASE_URL
+              value: "http://172.16.30.31:32691/v1"
+            - name: STORY_PLANNER_LLM_TIMEOUT
+              value: "600"
+            - name: WORKER_DB_POOL_SIZE
+              value: "1"
+            - name: WORKER_DB_MAX_OVERFLOW
+              value: "0"
+          volumeMounts:
+            - name: storage
+              mountPath: /storage
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "2Gi"
+            limits:
+              cpu: "1000m"
+              memory: "8Gi"
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: novel-game-storage

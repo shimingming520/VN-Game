@@ -1,0 +1,27 @@
+# 非敏感配置:调度参数 / 命名约定
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: platform-config
+  namespace: agent-platform
+data:
+  TZ: "Asia/Shanghai"
+  HEARTBEAT_TIMEOUT_SEC: "60"
+  # novel-game-factory 的 api_gateway(跨 namespace,用完整 FQDN)。
+  # 中台代理创作请求过去:api_gateway 自身无用户鉴权,不直接暴露给浏览器。
+  NOVEL_API_URL: "http://api-gateway.novel-game.svc.cluster.local:8000"
+  # 本地模式：所有素材/产物均保存到共享 storage。
+  OSS_DISABLED: "1"
+  # CMS OAuth2 对接:client_id 由 CMS 侧分配;MOCK 置 0 走真实 CMS
+  MAINSITE_CLIENT_ID: "adm_YrlBA_UqN1SCoRFBtPm_K1F-"
+  MAINSITE_MOCK: "0"
+  # OAuth2 回调地址(需与 CMS 侧 redirect_uris 白名单精确匹配)
+  OAUTH_REDIRECT_URI: "https://console.farmmx.com/auth/callback"
+  JWT_EXPIRE_HOURS: "168"
+  # ── CMS 发布对接 ──
+  # 游戏站域名:testgame.farmmx.com 是 novel-game 里 game-server 的 ingress(测试环境)。
+  # 注意别写成 game.farmmx.com —— 那个 ingress 在 default namespace,是另一套服务,
+  # 指过去发布出来的链接全是坏链。
+  GAME_BASE_URL: "https://testgame.farmmx.com"
+  CMS_API_BASE: "https://testapi.farmmx.com/admin"
+  CDN_BASE_URL: ""

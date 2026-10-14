@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audio-producer
+  namespace: novel-game
+spec:
+  replicas: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: audio-producer
+  template:
+    metadata:
+      labels:
+        app: audio-producer
+    spec:
+      terminationGracePeriodSeconds: 172800
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: audio-producer
+          image: harbor.farmmx.com/game/audio_producer:latest
+          imagePullPolicy: Always
+          command: ["celery"]
+          args:
+            - "-A"
+            - "tasks"
+            - "worker"
+            - "--loglevel=info"
+            - "-Q"
+            - "audio_queue"
+            - "--pool=prefork"
+            - "--concurrency=1"
+            - "--prefetch-multiplier=1"
+            - "--max-tasks-per-child=5"
+            - "--without-gossip"
+            - "--without-mingle"
+          envFrom:
+            - configMapRef:
+                name: novel-game-config-test
+          env:
+            # 每个副本只开 1 路，总并发由 replicas 决定，见上方 replicas 注释。
+            - name: ELEVENLABS_DIALOGUE_WORKERS
+              value: "1"
+            # 只用于启动时校验 replicas × workers 是否超限并告警。
+            - name: AUDIO_PRODUCER_REPLICAS
+              value: "10"
+            # ElevenLabs 暂存目录位于共享 PVC；Redis 锁负责跨节点互斥，
+            # 文件锁仅作为同一挂载卷上的补充保护。
+            - name: ELEVENLABS_STAGE_LOCK_BACKEND
+              value: "redis"
+            - name: ELEVENLABS_STAGE_LOCK_WAIT_SECONDS
+              value: "2100"
+            - name: ELEVENLABS_STAGE_LOCK_POLL_SECONDS
+              value: "2"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: DB_PASSWORD
+            - name: DASHSCOPE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: DASHSCOPE_API_KEY
+            - name: MINIMAX_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: MINIMAX_API_KEY
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: DEEPSEEK_API_KEY
+            - name: ELEVENLABS_RELAY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: ELEVENLABS_RELAY_API_KEY
+            - name: WORKER_DB_POOL_SIZE
+              value: "1"
+            - name: WORKER_DB_MAX_OVERFLOW
+              value: "0"
+          volumeMounts:
+            - name: storage
+              mountPath: /storage
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "3Gi"
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: novel-game-storage

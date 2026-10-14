@@ -1,0 +1,647 @@
+# Kuboard 单文件导入版。
+# 导入前必须修改下面的 admin-password；不要把真实密码提交到 Git。
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-admin
+  namespace: agent-platform
+type: Opaque
+stringData:
+  admin-user: admin
+  admin-password: "Juzhenpro@2026"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vector
+  namespace: agent-platform
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: novel-game-vector-logs
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - nodes
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: novel-game-vector-logs
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: novel-game-vector-logs
+subjects:
+- kind: ServiceAccount
+  name: vector
+  namespace: agent-platform
+---
+apiVersion: v1
+data:
+  provider.yaml: |
+    apiVersion: 1
+    providers:
+      - name: pressure-test
+        orgId: 1
+        folder: Pressure Test
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 30
+        allowUiUpdates: true
+        options:
+          path: /etc/grafana/dashboards
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provider
+  namespace: agent-platform
+---
+apiVersion: v1
+data:
+  loki.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        uid: loki
+        type: loki
+        access: proxy
+        url: http://loki.agent-platform.svc.cluster.local:3100
+        isDefault: true
+        editable: false
+        jsonData:
+          maxLines: 1000
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: agent-platform
+---
+apiVersion: v1
+data:
+  pressure-logs.json: |
+    {
+      "annotations": {"list": []},
+      "editable": true,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "datasource": {"type": "loki", "uid": "loki"},
+          "fieldConfig": {"defaults": {}, "overrides": []},
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+          "id": 1,
+          "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+          "targets": [
+            {"datasource": {"type": "loki", "uid": "loki"}, "editorMode": "code", "expr": "sum by (app) (count_over_time({namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\", container=~\"$container\", level=\"error\"}[$__interval]))", "legendFormat": "error {{app}}", "queryType": "range", "refId": "A"},
+            {"datasource": {"type": "loki", "uid": "loki"}, "editorMode": "code", "expr": "sum by (app) (count_over_time({namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\", container=~\"$container\", level=\"warn\"}[$__interval]))", "legendFormat": "warn {{app}}", "queryType": "range", "refId": "B"}
+          ],
+          "title": "Errors and warnings",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 10, "w": 12, "x": 0, "y": 8},
+          "id": 2,
+          "options": {"dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
+          "targets": [
+            {"datasource": {"type": "loki", "uid": "loki"}, "editorMode": "code", "expr": "{namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\", container=~\"$container\", level=\"error\"} | json | line_format `{{.message}}`", "queryType": "range", "refId": "A"}
+          ],
+          "title": "ERROR",
+          "type": "logs"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 10, "w": 12, "x": 12, "y": 8},
+          "id": 3,
+          "options": {"dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
+          "targets": [
+            {"datasource": {"type": "loki", "uid": "loki"}, "editorMode": "code", "expr": "{namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\", container=~\"$container\", level=\"warn\"} | json | line_format `{{.message}}`", "queryType": "range", "refId": "A"}
+          ],
+          "title": "WARNING",
+          "type": "logs"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 12, "w": 24, "x": 0, "y": 18},
+          "id": 4,
+          "options": {"dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": false, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
+          "targets": [
+            {"datasource": {"type": "loki", "uid": "loki"}, "editorMode": "code", "expr": "{namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\", container=~\"$container\", level=~\"$level\"} | json | line_format `{{.message}}`", "queryType": "range", "refId": "A"}
+          ],
+          "title": "All logs",
+          "type": "logs"
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 41,
+      "tags": ["novel-game", "pressure-test", "logs"],
+      "templating": {
+        "list": [
+          {"allValue": ".+", "current": {"text": "All", "value": "$__all"}, "datasource": {"type": "loki", "uid": "loki"}, "definition": "label_values(namespace)", "includeAll": true, "label": "Namespace", "name": "namespace", "options": [], "query": "label_values(namespace)", "refresh": 1, "regex": "", "type": "query"},
+          {"allValue": ".+", "current": {"text": "All", "value": "$__all"}, "datasource": {"type": "loki", "uid": "loki"}, "definition": "label_values({namespace=~\"$namespace\"}, app)", "includeAll": true, "label": "App", "name": "app", "options": [], "query": "label_values({namespace=~\"$namespace\"}, app)", "refresh": 1, "regex": "", "type": "query"},
+          {"allValue": ".+", "current": {"text": "All", "value": "$__all"}, "datasource": {"type": "loki", "uid": "loki"}, "definition": "label_values({namespace=~\"$namespace\", app=~\"$app\"}, pod)", "includeAll": true, "label": "Pod", "name": "pod", "options": [], "query": "label_values({namespace=~\"$namespace\", app=~\"$app\"}, pod)", "refresh": 1, "regex": "", "type": "query"},
+          {"allValue": ".+", "current": {"text": "All", "value": "$__all"}, "datasource": {"type": "loki", "uid": "loki"}, "definition": "label_values({namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\"}, container)", "includeAll": true, "label": "Container", "name": "container", "options": [], "query": "label_values({namespace=~\"$namespace\", app=~\"$app\", pod=~\"$pod\"}, container)", "refresh": 1, "regex": "", "type": "query"},
+          {"allValue": ".+", "current": {"text": "All", "value": "$__all"}, "hide": 0, "includeAll": true, "label": "Level", "multi": true, "name": "level", "options": [], "query": "error,warn,info,debug", "type": "custom"}
+        ]
+      },
+      "time": {"from": "now-15m", "to": "now"},
+      "timezone": "browser",
+      "title": "Novel Game Pressure Test Logs",
+      "uid": "novel-game-pressure-logs",
+      "version": 2
+    }
+kind: ConfigMap
+metadata:
+  name: grafana-pressure-dashboard
+  namespace: agent-platform
+---
+apiVersion: v1
+data:
+  loki.yaml: |
+    auth_enabled: false
+
+    analytics:
+      reporting_enabled: false
+
+    server:
+      http_listen_port: 3100
+      grpc_listen_port: 9096
+
+    common:
+      instance_addr: 127.0.0.1
+      path_prefix: /var/loki
+      replication_factor: 1
+      ring:
+        kvstore:
+          store: inmemory
+      storage:
+        filesystem:
+          chunks_directory: /var/loki/chunks
+          rules_directory: /var/loki/rules
+
+    schema_config:
+      configs:
+        - from: "2024-01-01"
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
+
+    limits_config:
+      # 6 个 Vector 会并行回放磁盘缓冲；默认 4 MiB/s 会持续返回 429/写入失败。
+      ingestion_rate_mb: 32
+      ingestion_burst_size_mb: 64
+      per_stream_rate_limit: 8MB
+      per_stream_rate_limit_burst: 16MB
+      retention_period: 336h
+      max_query_lookback: 336h
+      query_timeout: 30s
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+      allow_structured_metadata: true
+
+    storage_config:
+      tsdb_shipper:
+        active_index_directory: /var/loki-hot/tsdb-index
+        cache_location: /var/loki-hot/tsdb-cache
+
+    ingester:
+      wal:
+        enabled: true
+        dir: /var/loki-hot/wal
+        # Pod 正常替换前先把已确认的日志刷入持久化 chunks，避免 emptyDir 随 Pod 删除而丢失。
+        flush_on_shutdown: true
+
+    compactor:
+      working_directory: /var/loki-hot/compactor
+      retention_enabled: true
+      retention_delete_delay: 2h
+      retention_delete_worker_count: 4
+      delete_request_store: filesystem
+
+    frontend:
+      log_queries_longer_than: 5s
+
+    query_range:
+      align_queries_with_step: true
+      cache_results: true
+      results_cache:
+        cache:
+          embedded_cache:
+            enabled: true
+            max_size_mb: 128
+
+    querier:
+      max_concurrent: 4
+kind: ConfigMap
+metadata:
+  name: loki-config
+  namespace: agent-platform
+---
+apiVersion: v1
+data:
+  vector.yaml: |
+    api:
+      enabled: true
+      address: 0.0.0.0:8686
+
+    data_dir: /vector-data-dir
+
+    sources:
+      kubernetes_logs:
+        type: kubernetes_logs
+        self_node_name: "${VECTOR_SELF_NODE_NAME}"
+        auto_partial_merge: true
+
+    transforms:
+      project_logs:
+        type: filter
+        inputs: ["kubernetes_logs"]
+        condition: >-
+          .kubernetes.pod_namespace == "novel-game" ||
+          .kubernetes.pod_namespace == "agent-platform"
+
+      classify_level:
+        type: remap
+        inputs: ["project_logs"]
+        source: |
+          .app = if is_string(.kubernetes.pod_labels.app) && .kubernetes.pod_labels.app != "" {
+            .kubernetes.pod_labels.app
+          } else if is_string(.kubernetes.container_name) && .kubernetes.container_name != "" {
+            .kubernetes.container_name
+          } else {
+            "unknown"
+          }
+          message = downcase(to_string!(.message))
+          .level = "info"
+
+          if match(message, r'(?i)(critical|fatal|traceback|exception|(^|[^a-z])error([^a-z]|$)|❌|错误|失败|崩溃)') {
+            .level = "error"
+          } else if match(message, r'(?i)(warning|(^|[^a-z])warn([^a-z]|$)|⚠️?|警告)') {
+            .level = "warn"
+          } else if match(message, r'(?i)((^|[^a-z])debug([^a-z]|$))') {
+            .level = "debug"
+          }
+
+          # 高基数内容只保留在日志正文中，不变成 Loki label。
+          # 删除无查询价值且体积很大的 Kubernetes metadata。
+          del(.kubernetes.pod_annotations)
+          del(.kubernetes.namespace_annotations)
+
+    sinks:
+      loki:
+        type: loki
+        inputs: ["classify_level"]
+        endpoint: http://loki.agent-platform.svc.cluster.local:3100
+        healthcheck:
+          enabled: true
+        encoding:
+          codec: json
+        labels:
+          namespace: "{{ kubernetes.pod_namespace }}"
+          app: "{{ app }}"
+          pod: "{{ kubernetes.pod_name }}"
+          container: "{{ kubernetes.container_name }}"
+          node: "{{ kubernetes.pod_node_name }}"
+          stream: "{{ stream }}"
+          level: "{{ level }}"
+        batch:
+          max_bytes: 1048576
+          timeout_secs: 1
+        buffer:
+          type: disk
+          max_size: 536870912
+          when_full: block
+kind: ConfigMap
+metadata:
+  name: vector-config
+  namespace: agent-platform
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: agent-platform
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    nodePort: 30300
+    port: 3000
+    targetPort: http
+  selector:
+    app: grafana
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki
+  namespace: agent-platform
+spec:
+  ports:
+  - name: http
+    port: 3100
+    targetPort: http
+  - name: grpc
+    port: 9096
+    targetPort: grpc
+  selector:
+    app: loki
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: loki-data
+  namespace: agent-platform
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: storage-nfs
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+  namespace: agent-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - env:
+        - name: GF_SECURITY_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              key: admin-user
+              name: grafana-admin
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: admin-password
+              name: grafana-admin
+        - name: GF_USERS_ALLOW_SIGN_UP
+          value: "false"
+        - name: GF_AUTH_ANONYMOUS_ENABLED
+          value: "false"
+        - name: GF_LOG_MODE
+          value: console
+        image: grafana/grafana:12.1.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: http
+          periodSeconds: 30
+          timeoutSeconds: 3
+        name: grafana
+        ports:
+        - containerPort: 3000
+          name: http
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: http
+          periodSeconds: 10
+          timeoutSeconds: 3
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 472
+        startupProbe:
+          failureThreshold: 60
+          httpGet:
+            path: /api/health
+            port: http
+          periodSeconds: 5
+        volumeMounts:
+        - mountPath: /var/lib/grafana
+          name: data
+        - mountPath: /etc/grafana/provisioning/datasources
+          name: datasources
+          readOnly: true
+        - mountPath: /etc/grafana/provisioning/dashboards
+          name: dashboard-provider
+          readOnly: true
+        - mountPath: /etc/grafana/dashboards
+          name: dashboards
+          readOnly: true
+      securityContext:
+        fsGroup: 472
+        fsGroupChangePolicy: OnRootMismatch
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - emptyDir: {}
+        name: data
+      - configMap:
+          name: grafana-datasources
+        name: datasources
+      - configMap:
+          name: grafana-dashboard-provider
+        name: dashboard-provider
+      - configMap:
+          name: grafana-pressure-dashboard
+        name: dashboards
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: loki
+  name: loki
+  namespace: agent-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        observability.farmmx.com/config-version: "2026-08-19-ingestion-32mb"
+      labels:
+        app: loki
+    spec:
+      containers:
+      - args:
+        - -config.file=/etc/loki/loki.yaml
+        image: grafana/loki:3.6.12
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: http
+          periodSeconds: 30
+          timeoutSeconds: 3
+        name: loki
+        ports:
+        - containerPort: 3100
+          name: http
+        - containerPort: 9096
+          name: grpc
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          periodSeconds: 10
+          timeoutSeconds: 3
+        resources:
+          limits:
+            cpu: "2"
+            memory: 4Gi
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 10001
+        startupProbe:
+          failureThreshold: 60
+          httpGet:
+            path: /ready
+            port: http
+          periodSeconds: 5
+        volumeMounts:
+        - mountPath: /etc/loki
+          name: config
+          readOnly: true
+        - mountPath: /var/loki
+          name: data
+        - mountPath: /var/loki-hot
+          name: hot
+        - mountPath: /tmp
+          name: tmp
+      securityContext:
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - configMap:
+          name: loki-config
+        name: config
+      - name: data
+        persistentVolumeClaim:
+          claimName: loki-data
+      - emptyDir: {}
+        name: hot
+      - emptyDir: {}
+        name: tmp
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: vector
+  name: vector
+  namespace: agent-platform
+spec:
+  selector:
+    matchLabels:
+      app: vector
+  template:
+    metadata:
+      labels:
+        app: vector
+    spec:
+      containers:
+      - args:
+        - --config
+        - /etc/vector/vector.yaml
+        env:
+        - name: VECTOR_SELF_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        image: timberio/vector:0.49.0-debian
+        imagePullPolicy: IfNotPresent
+        name: vector
+        ports:
+        - containerPort: 8686
+          name: api
+        readinessProbe:
+          periodSeconds: 10
+          tcpSocket:
+            port: api
+          timeoutSeconds: 2
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 50m
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsUser: 0
+        volumeMounts:
+        - mountPath: /etc/vector
+          name: config
+          readOnly: true
+        - mountPath: /var/log
+          name: var-log
+          readOnly: true
+        - mountPath: /vector-data-dir
+          name: data
+      serviceAccountName: vector
+      terminationGracePeriodSeconds: 60
+      tolerations:
+      - operator: Exists
+      volumes:
+      - configMap:
+          name: vector-config
+        name: config
+      - hostPath:
+          path: /var/log
+        name: var-log
+      - hostPath:
+          path: /var/lib/novel-game-vector
+          type: DirectoryOrCreate
+        name: data
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate

@@ -1,0 +1,33 @@
+metadata:
+  service: info_extractor
+  name: cg_extractor_user
+  version: v1.3
+  language: en-US
+  description: "CG 提取器用户提示词模板 - 占位符: {cg_id} {context_text} {scene_anchor} {character_brief} {declared_visual_entities} {recent_scene_prompts}"
+  tags:
+    - cg-extraction
+    - image-prompt
+    - visual-prompt
+    - user-prompt
+
+content: |
+  【CG 节点 ID】: {cg_id}
+
+  【环境锚 (location / time / feature)】:
+  {scene_anchor}
+
+  【出场角色外观（仅供参考，不一定全部入画）】:
+  {character_brief}
+
+  【CG 标注阶段声明的可见人物（required_identity 不得遗漏）】:
+  {declared_visual_entities}
+
+  【最近场景已生成的 image_prompt（仅用于保持光照/环境/空间一致性，不用于决定画风）】:
+  {recent_scene_prompts}
+
+  【该 CG 锚定的剧情高光上下文（分 BEFORE / CG RANGE / AFTER 三段，只能从 CG RANGE 选定格画面）】:
+  {context_text}
+
+  请基于上述信息输出完整结构化 JSON。必须从 CG RANGE 选择一个真实 beat 的
+  单一瞬间，明确 required / optional / offscreen 人物，并为每个可见人物给出
+  位置、动作、表情、肢体语言和身份描述；不要输出 Image N 编号。

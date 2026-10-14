@@ -1,0 +1,11 @@
+FROM python:3.10.20-slim
+
+WORKDIR /app
+
+COPY services/api_gateway/requirements.txt /tmp/api-gateway-requirements.txt
+RUN pip install --no-cache-dir --timeout=1800 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -r /tmp/api-gateway-requirements.txt
+
+ENV PYTHONPATH=/app

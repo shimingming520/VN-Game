@@ -1,0 +1,23 @@
+metadata:
+  service: scene_painter
+  name: scene_extractor_merge_user
+  version: v1.1
+  language: zh-CN
+  description: "场景合并用户提示词模板 - 含 {canonical_name} / {records} / {buckets} 占位符"
+  tags:
+    - scene-merge
+    - user-prompt
+
+content: |
+  【大空间统一名称 canonical_name】: {canonical_name}
+
+  【该场景点下的全部记录（每条一个编号 [i]）】:
+  {records}
+
+  【按 (time, weather) 划分的硬分桶（同桶内 time 与 weather 都相同；变体绝不可跨桶）】:
+  {buckets}
+
+  请产出两级结构：
+  - 一级：name/info/detail（只留这个大空间固定通用的结构，从各记录的 detail 汇总去重）。
+  - variants：把上面的记录聚成变体。一个变体=一张可复用的画面（同 time+同 weather+同一画面）。先服从上面的硬分桶（不可跨桶）；再在同桶内通读 detail 与 shot 做语义判断——不仅看位置是否相同，还要看画面重心与可见物品/陈设/空间状态是否基本一致：位置变了，或同位置但画面重心/物品取景明显不同，都拆成不同变体。**拿不准是不是同一张画面时，优先拆，不要合**；只有确信是同一取景、纯措辞差异才合并。每个变体给出：members（包含的记录编号）、position、info、**shot（继承综合成员记录的 shot，即这张底图主要画什么、画面重心、视角、大空间占多少）**、**increment（相对一级通用结构的增量：特殊物品/天气造成的空间状态）**、light、atmosphere。保证每条记录恰好被分到一个变体。
+  输出 JSON。

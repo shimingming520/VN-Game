@@ -1,0 +1,51 @@
+# 平台 adapter(阶段2:内部适配)—— 部署在组一自己的 ns(novel-game)
+# 职责:消费平台 Job → send_task 给本组现有 Celery worker → 汇总 token → 回调平台
+# 跨 ns 依赖:agent-platform 的 rabbitmq 与 platform-api(svc.cluster.local 直连)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: platform-adapter
+  namespace: novel-game
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: platform-adapter
+  template:
+    metadata:
+      labels:
+        app: platform-adapter
+    spec:
+      imagePullSecrets:
+        - name: harbor-secret
+      containers:
+        - name: adapter
+          image: harbor.farmmx.com/game/platform_adapter:latest
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: novel-game-config-test   # REDIS_HOST/DB_HOST 等,对齐现有服务
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: DB_PASSWORD
+            - name: PLATFORM_API
+              value: "http://platform-api.agent-platform.svc.cluster.local:8000"
+            - name: PLATFORM_MQ_URL
+              valueFrom:
+                secretKeyRef:
+                  name: novel-game-secret-test
+                  key: PLATFORM_MQ_URL   # amqp://platform:密码@rabbitmq.agent-platform.svc.cluster.local:5672/%2F
+            - name: PLATFORM_GROUP_NAME
+              value: "group-ref"
+            - name: ADAPTER_CONCURRENCY
+              value: "10"
+            - name: ADAPTER_DISPATCH_MARKER_TTL
+              value: "1209600"
+          resources:
+            requests: { cpu: 500m, memory: 512Mi }
+            limits: { cpu: "2", memory: 2Gi }

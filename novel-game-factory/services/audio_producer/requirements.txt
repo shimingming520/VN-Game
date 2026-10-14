@@ -1,0 +1,16 @@
+# 核心依赖
+celery==5.3.4
+redis==5.0.1
+click>=8.0.0
+sqlalchemy
+sqlmodel
+python-dotenv
+openai
+tqdm
+tenacity
+pypinyin
+dashscope>=1.18.0
+requests>=2.31.0
+#PostgreSQL:
+psycopg2-binary
+oss2

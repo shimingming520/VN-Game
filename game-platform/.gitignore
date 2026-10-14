@@ -1,0 +1,15 @@
+# 真实密钥不进 git,只提交 01-secret.example.yaml 模板
+k8s/01-secret.yaml
+__pycache__/
+*.pyc
+.env
+
+# 原型/演示素材包体积过大(百 MB 级),只保留 oauth2 相关文档
+example/*
+!example/oauth2_authorization_flow.md
+!example/oauth2_partner_demo.html
+
+# 编辑器与误建文件
+*.swp
+*.swo
+=

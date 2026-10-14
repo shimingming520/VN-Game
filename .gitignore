@@ -1,0 +1,70 @@
+# Local tooling and editor state
+.git/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.playwright-cli/
+.pytest_cache/
+.runtime-logs/
+*.swp
+*.swo
+*.log
+
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+*.pyd
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# JavaScript dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.npm/
+
+# Local databases and generated runtime data
+*.db
+*.sqlite
+*.sqlite3
+**/k8s/secret.yaml
+**/k8s/secret-test.yaml
+storage/raw_novels/
+storage/outputs/
+storage/built_games/
+novel-game-factory/storage/raw_novels/
+novel-game-factory/storage/outputs/
+novel-game-factory/storage/built_games/
+novel-game-factory/storage/local_logs/
+novel-game-factory/.local_dev/
+novel-game-factory/services/*/log/
+novel-game-factory/services/*/logs/
+novel-game-factory/services/story_planner/.cache/
+novel-game-factory/services/story_planner/smoke_output/
+
+# Downloaded model weights and archives (use an artifact/model registry)
+**/models/
+**/sentence-transformers/
+*.bin
+*.onnx
+*.safetensors
+*.ckpt
+*.pth
+*.pt
+*.h5
+*.ot
+*.zip
+*.7z
+*.tar
+*.tar.gz
+
+# OS metadata
+.DS_Store
+Thumbs.db
+

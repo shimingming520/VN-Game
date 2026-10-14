@@ -1,0 +1,22 @@
+# 核心依赖
+celery==5.3.4
+redis==5.0.1
+sqlalchemy
+sqlmodel
+python-dotenv
+openai>=1.0.0
+
+requests
+tqdm
+tenacity
+json-repair
+pyyaml
+anthropic>=0.25.0
+dashscope>=1.18.0
+# 图像读取、RGBA 校验、画布扩展与景别裁切
+pillow
+pypinyin
+
+# 数据库驱动
+psycopg2-binary
+oss2
